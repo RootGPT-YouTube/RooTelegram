@@ -1,4 +1,4 @@
-# RooTelegram — Un client Telegram leggero e reattivo per SailfishOS
+#[ITALIANO] RooTelegram — Un client Telegram leggero e reattivo per SailfishOS
 ## Caratteristiche principali
 Interfaccia semplice, veloce e ottimizzata per SailfishOS
 Supporto completo alla formattazione dei messaggi (grassetto, corsivo, monospazio, ecc.)
