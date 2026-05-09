@@ -37,7 +37,7 @@ coerente con SailfishOS → integrazione nativa, rispetto delle linee guida Sili
 Il design è volutamente scarno e basilare, perché la priorità è la velocità, non l’estetica.
 
 ## Roadmap
-Stato attuale dello sviluppo:
+Stato attuale dello sviluppo (ROADMAP):
 
 0. Modifiche dei messaggi (formattazione testo) — ✔️ FATTO
 
@@ -61,7 +61,13 @@ Stato attuale dello sviluppo:
 
 10. Traduzione (possibile supporto IA) — ⏳ DA FARE
 
-11. Aggiungere “Invia a RooTelegram” nel menù Condividi di SailfishOS — ⏳ DA FARE
+11. Aggiungere “Invia a RooTelegram” nel menù Condividi di SailfishOS — ✔️ FATTO
+
+12. Aggiungere "Chiama" per le telefonate via Telegram — ⏳ DA FARE
+
+13. Migliorare preview immagini (portrait e landscape), migliorare formattazione messaggi (wordwrap e mono) e preview link — ✔️ FATTO
+
+14. Bio utente e tabulazione (Media, Audio, Documenti, Link, Gruppi) — ⏳ DA FARE
 
 Opzionale:
 
