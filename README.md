@@ -72,8 +72,8 @@ Opzionale:
 
 Riordinamento dei gruppi dei “Custom Emoji Set” — ✔️ FATTO
 
-#[ENGLISH] RooTelegram — A lightweight and responsive Telegram client for SailfishOS
-##Main features
+# [ENGLISH] RooTelegram — A lightweight and responsive Telegram client for SailfishOS
+## Main features
 Simple, fast interface optimized for SailfishOS
 Full support for message formatting (bold, italic, monospace, etc.)
 Reliable notifications through a dedicated daemon
@@ -96,7 +96,7 @@ https://github.com/Michal-Szczepaniak/Yottagram
 
 Both projects served as valuable starting points, but RooTelegram introduces a completely renewed architecture designed to be faster, more stable, and better suited for modern devices.
 
-##Project goal
+## Project goal
 The goal of RooTelegram is to offer a Telegram client that is:
 
 responsive → instant opening thanks to the always‑running daemon
@@ -109,7 +109,7 @@ consistent with SailfishOS → native integration, respecting Silica guidelines
 
 The design is intentionally minimal and essential, because the priority is speed, not aesthetics.
 
-##Roadmap
+## Roadmap
 Current development status (ROADMAP):
 
 Message editing (text formatting) — ✔️ DONE
