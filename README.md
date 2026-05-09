@@ -8,7 +8,6 @@ Gestione dei PIN dei messaggi
 Selezione e copia parziale del testo
 Gestione delle richieste di accesso ai gruppi (per admin)
 Architettura moderna basata su UI + daemon, per apertura istantanea dell’app
-Basato su MTProto ufficiale
 
 ## Origini del progetto
 RooTelegram nasce come evoluzione e modernizzazione del primordiale client Telegram per SailfishOS:
@@ -45,7 +44,7 @@ Stato attuale dello sviluppo (ROADMAP):
 
 2. Demone per le notifiche — ✔️ FATTO
 
-3. Creazione e gestione delle cartelle — ⏳ IN CORSO
+3. Creazione e gestione delle cartelle — ✔️ FATTO
 
 4. Emoji custom — ✔️ FATTO
 
@@ -67,8 +66,82 @@ Stato attuale dello sviluppo (ROADMAP):
 
 13. Migliorare preview immagini (portrait e landscape), migliorare formattazione messaggi (wordwrap e mono) e preview link — ✔️ FATTO
 
-14. Bio utente e tabulazione (Media, Audio, Documenti, Link, Gruppi) — ⏳ DA FARE
+14. Bio utente e tabulazione (Media, Audio, Documenti, Link, Gruppi) — ✔️ FATTO
 
 Opzionale:
 
-Riordinamento dei gruppi dei “Custom Emoji Set”
+Riordinamento dei gruppi dei “Custom Emoji Set” — ✔️ FATTO
+
+#[ENGLISH] RooTelegram — A lightweight and responsive Telegram client for SailfishOS
+##Main features
+Simple, fast interface optimized for SailfishOS
+Full support for message formatting (bold, italic, monospace, etc.)
+Reliable notifications through a dedicated daemon
+Support for Custom Emoji
+Message PIN management
+Partial text selection and copy
+Handling of group join requests (for admins)
+Modern architecture based on UI + daemon for instant app launch
+
+Project origins
+RooTelegram was born as an evolution and modernization of the early Telegram client for SailfishOS:
+
+Fernschreiber by Sebastian J. Wolf
+https://github.com/Wunderfitz/harbour-fernschreiber
+
+and takes inspiration from some technical solutions found in:
+
+Yottagram by Michal Szczepaniak
+https://github.com/Michal-Szczepaniak/Yottagram
+
+Both projects served as valuable starting points, but RooTelegram introduces a completely renewed architecture designed to be faster, more stable, and better suited for modern devices.
+
+##Project goal
+The goal of RooTelegram is to offer a Telegram client that is:
+
+responsive → instant opening thanks to the always‑running daemon
+
+lightweight → minimal UI, no heavy effects
+
+reliable → notifications that always work
+
+consistent with SailfishOS → native integration, respecting Silica guidelines
+
+The design is intentionally minimal and essential, because the priority is speed, not aesthetics.
+
+##Roadmap
+Current development status (ROADMAP):
+
+Message editing (text formatting) — ✔️ DONE
+
+Working notifications — ✔️ DONE
+
+Notification daemon — ✔️ DONE
+
+Folder creation and management — ✔️ DONE
+
+Custom Emoji — ✔️ DONE
+
+Message PINs — ✔️ DONE
+
+Partial text selection + copy — ✔️ DONE
+
+Handling group join requests (admin) — ✔️ DONE
+
+Stories / Status — ⏳ TO DO
+
+Formatting bugfixes — ✔️ DONE
+
+Translation (possible AI support) — ⏳ TO DO
+
+Add “Send to RooTelegram” in SailfishOS Share menu — ✔️ DONE
+
+Add “Call” for Telegram voice calls — ⏳ TO DO
+
+Improve image previews (portrait & landscape), improve message formatting (wordwrap & mono) and link previews — ✔️ DONE
+
+User bio and tabs (Media, Audio, Documents, Links, Groups) — ✔️ DONE
+
+Optional:
+
+Reordering of “Custom Emoji Set” groups — ✔️ DONE
