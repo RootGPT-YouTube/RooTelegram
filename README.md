@@ -117,5 +117,5 @@ Current development status (ROADMAP):
 15. Settings for Groups and Channels — ✔️ DONE
 16. Multilanguage version — ⏳ TO DO
 
-Help me keep my projects alive!
+Your support helps keep my projects alive!
 https://ko-fi.com/rootgpt
