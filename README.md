@@ -55,6 +55,9 @@ Stato attuale dello sviluppo (ROADMAP):
 15. Impostazioni per Gruppi e Canali - ✔️ FATTO
 16. Versione multilingua — ⏳ DA FARE
 
+Aiutami a mantenere attivi i miei progetti!
+https://ko-fi.com/rootgpt
+
 ---
 
 # [ENGLISH] RooTelegram — A lightweight and responsive Telegram client for SailfishOS
@@ -113,3 +116,6 @@ Current development status (ROADMAP):
 14. User bio and tabs (Media, Audio, Documents, Links, Groups) — ✔️ DONE
 15. Settings for Groups and Channels — ✔️ DONE
 16. Multilanguage version — ⏳ TO DO
+
+Help me keep my projects alive!
+https://ko-fi.com/rootgpt
