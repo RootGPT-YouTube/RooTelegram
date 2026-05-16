@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -439,6 +444,10 @@ ChatListModel::ChatListModel(TDLibWrapper *tdLibWrapper, AppSettings *appSetting
     connect(tdLibWrapper, SIGNAL(chatUnreadReactionCountUpdated(qlonglong, int)), this, SLOT(handleChatUnreadReactionCountUpdated(qlonglong, int)));
     connect(tdLibWrapper, SIGNAL(chatAvailableReactionsUpdated(qlonglong,QVariantMap)), this, SLOT(handleChatAvailableReactionsUpdated(qlonglong,QVariantMap)));
     connect(tdLibWrapper, SIGNAL(chatPendingJoinRequestsUpdated(qlonglong, QVariantMap)), this, SLOT(handleChatPendingJoinRequestsUpdated(qlonglong, QVariantMap)));
+    // Whenever TDLib aggregates an unread state update for any chat list, re-emit
+    // privateUnreadStateChanged so the cover can refresh its private-only counts.
+    connect(tdLibWrapper, SIGNAL(unreadMessageCountUpdated(QVariantMap)), this, SIGNAL(privateUnreadStateChanged()));
+    connect(tdLibWrapper, SIGNAL(unreadChatCountUpdated(QVariantMap)), this, SIGNAL(privateUnreadStateChanged()));
 
     // Don't start the timer until we have at least one chat
     relativeTimeRefreshTimer = new QTimer(this);
@@ -563,6 +572,14 @@ QVariantMap ChatListModel::getById(qlonglong chatId)
     if (chatIndexMap.contains(chatId)) {
         return chatList.value(chatIndexMap.value(chatId))->chatData;
     }
+    // Chat filtrata fuori dalla cartella attiva (es. apertura da notifica
+    // mentre l'utente è in una cartella che non contiene quella chat)
+    if (folderFilteredChats.contains(chatId)) {
+        return folderFilteredChats.value(chatId)->chatData;
+    }
+    if (hiddenChats.contains(chatId)) {
+        return hiddenChats.value(chatId)->chatData;
+    }
     return QVariantMap();
 }
 
@@ -633,6 +650,30 @@ void ChatListModel::calculateUnreadState()
         LOG("Online-only mode: New unread state:" << unreadMessages << unreadChats);
         emit unreadStateChanged(unreadMessages, unreadChats);
     }
+    emit privateUnreadStateChanged();
+}
+
+QVariantMap ChatListModel::getPrivateUnreadCounts() const
+{
+    int unreadMessages = 0;
+    int unreadChats = 0;
+    QListIterator<ChatData*> chatIterator(this->chatList);
+    while (chatIterator.hasNext()) {
+        ChatData *currentChat = chatIterator.next();
+        if (currentChat->chatType != TDLibWrapper::ChatTypePrivate
+                && currentChat->chatType != TDLibWrapper::ChatTypeSecret) {
+            continue;
+        }
+        const int unreadCount = currentChat->unreadCount();
+        if (unreadCount > 0) {
+            unreadChats++;
+            unreadMessages += unreadCount;
+        }
+    }
+    QVariantMap result;
+    result.insert("unread_messages", unreadMessages);
+    result.insert("unread_chats", unreadChats);
+    return result;
 }
 
 void ChatListModel::addVisibleChat(ChatData *chat)

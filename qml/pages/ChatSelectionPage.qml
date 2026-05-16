@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -66,11 +71,41 @@ Dialog {
         width: parent.width
     }
 
+    SearchField {
+        id: chatSearchField
+        anchors.top: pageHeader.bottom
+        width: parent.width
+        placeholderText: qsTr("Search in contacts...")
+        EnterKey.iconSource: "image://theme/icon-m-enter-close"
+        EnterKey.onClicked: focus = false
+    }
+
+    ChatPermissionFilterModel {
+        id: chatPermissionFilterModel
+        tdlib: tdLibWrapper
+        sourceModel: chatListModel
+        requirePermissions: chatSelectionPage.payload.neededPermissions
+    }
+
+    TextFilterModel {
+        id: chatTextFilterModel
+        sourceModel: chatPermissionFilterModel
+        filterRoleName: "filter"
+        filterText: chatSearchField.text
+        Component.onCompleted: {
+            // Forza il re-lookup del ruolo "filter" dopo che il proxy a monte
+            // ha ricevuto il suo sourceModel — altrimenti updateFilterRole()
+            // viene chiamato troppo presto e cade su DisplayRole (vuoto).
+            filterRoleName = "";
+            filterRoleName = "filter";
+        }
+    }
+
     SilicaListView {
         id: chatListView
 
         anchors {
-            top: pageHeader.bottom
+            top: chatSearchField.bottom
             bottom: parent.bottom
             left: parent.left
             right: parent.right
@@ -78,11 +113,7 @@ Dialog {
 
         clip: true
 
-        model: ChatPermissionFilterModel {
-            tdlib: tdLibWrapper
-            sourceModel: chatListModel
-            requirePermissions: chatSelectionPage.payload.neededPermissions
-        }
+        model: chatTextFilterModel
 
         delegate: ChatListViewItem {
             ownUserId: chatSelectionPage.myUserId

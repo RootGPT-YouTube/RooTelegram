@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -114,8 +119,19 @@ Page {
     function openChat(chatId) {
         if(chatListCreated && chatId) {
             Debug.log("[OverviewPage] Opening Chat: ", chatId);
+            // Fallback su tdLibWrapper.getChat() se la chat non è nella cartella
+            // attiva (getById ritorna mappa vuota): senza id/type ChatPage si rompe
+            var chatInfo = chatListModel.getById(chatId);
+            if (!chatInfo || !chatInfo.id) {
+                Debug.log("[OverviewPage] Chat not in active folder, falling back to TDLib cache");
+                chatInfo = tdLibWrapper.getChat(chatId.toString());
+            }
+            if (!chatInfo || !chatInfo.id) {
+                Debug.log("[OverviewPage] Chat unavailable, aborting open: ", chatId);
+                return;
+            }
             pageStack.pop(overviewPage, PageStackAction.Immediate);
-            pageStack.push(Qt.resolvedUrl("../pages/ChatPage.qml"), { "chatInformation" : chatListModel.getById(chatId) }, PageStackAction.Immediate);
+            pageStack.push(Qt.resolvedUrl("../pages/ChatPage.qml"), { "chatInformation" : chatInfo }, PageStackAction.Immediate);
             chatToOpen = null;
         }
     }
@@ -158,23 +174,18 @@ Page {
     function setPageStatus() {
         switch (overviewPage.connectionState) {
         case TelegramAPI.WaitingForNetwork:
-            pageStatus.color = "red";
             pageHeader.title = qsTr("Waiting for network...");
             break;
         case TelegramAPI.Connecting:
-            pageStatus.color = "gold";
             pageHeader.title = qsTr("Connecting to network...");
             break;
         case TelegramAPI.ConnectingToProxy:
-            pageStatus.color = "gold";
             pageHeader.title = qsTr("Connecting to proxy...");
             break;
         case TelegramAPI.ConnectionReady:
-            pageStatus.color = "green";
             pageHeader.title = qsTr("RooTelegram");
             break;
         case TelegramAPI.Updating:
-            pageStatus.color = "lightblue";
             pageHeader.title = qsTr("Updating content...");
             break;
         }
@@ -210,6 +221,9 @@ Page {
             overviewPage.loading = false;
             overviewPage.initializationCompleted = true;
             overviewPage.updateContent();
+            if (appSettings.disableVideoPreload) {
+                Functions.applyVideoPreloadOverride();
+            }
             break;
         case TelegramAPI.AuthorizationStateLoggingOut:
             if (logoutLoading) {
@@ -270,7 +284,7 @@ Page {
         }
         tdLibWrapper.getChats();
         chatListModel.calculateUnreadState();
-        appNotification.show(qsTr("Tutte le chat sono state segnate come lette."));
+        appNotification.show(qsTr("All chats marked as read."));
     }
 
     Connections {
@@ -308,15 +322,19 @@ Page {
             }
         }
         onChatReceived: {
-            var openAndSendStartToBot = chat["@extra"].indexOf("openAndSendStartToBot:") === 0
-            if(chat["@extra"] === "openDirectly" || openAndSendStartToBot && chat.type["@type"] === "chatTypePrivate") {
+            if (!chat || !chat.id) {
+                return;
+            }
+            var chatExtra = (chat["@extra"] !== undefined && chat["@extra"] !== null) ? chat["@extra"].toString() : ""
+            var openAndSendStartToBot = chatExtra.indexOf("openAndSendStartToBot:") === 0
+            if(chatExtra === "openDirectly" || openAndSendStartToBot && chat.type["@type"] === "chatTypePrivate") {
                 pageStack.pop(overviewPage, PageStackAction.Immediate)
                 // if we get a new chat (no messages?), we can not use the provided data
                 var chatinfo = tdLibWrapper.getChat(chat.id);
                 var options = { "chatInformation" : chatinfo }
                 if(openAndSendStartToBot) {
                     options.doSendBotStartMessage = true;
-                    options.sendBotStartMessageParameter = chat["@extra"].substring(22);
+                    options.sendBotStartMessageParameter = chatExtra.substring(22);
                 }
                 pageStack.push(Qt.resolvedUrl("../pages/ChatPage.qml"), options);
             }
@@ -355,7 +373,7 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                text: "Debug"
+                text: qsTr("Debug")
                 visible: Debug.enabled
                 onClicked: pageStack.push(Qt.resolvedUrl("../pages/DebugPage.qml"))
             }
@@ -367,13 +385,32 @@ Page {
                 text: qsTr("Settings")
                 onClicked: pageStack.push(Qt.resolvedUrl("../pages/SettingsPage.qml"))
             }
+            Separator {
+                width: parent.width
+                color: Theme.secondaryHighlightColor
+                horizontalAlignment: Qt.AlignHCenter
+            }
             MenuItem {
-                text: "Nuovo gruppo"
+                text: qsTr("Blocklist")
+                onClicked: pageStack.push(Qt.resolvedUrl("../pages/BlacklistPage.qml"))
+            }
+            Separator {
+                width: parent.width
+                color: Theme.secondaryHighlightColor
+                horizontalAlignment: Qt.AlignHCenter
+            }
+            MenuItem {
+                text: qsTr("New Group")
                 onClicked: pageStack.push(Qt.resolvedUrl("../pages/CreateSupergroupPage.qml"), { "isChannel": false })
             }
             MenuItem {
-                text: "Nuovo Canale"
+                text: qsTr("New Channel")
                 onClicked: pageStack.push(Qt.resolvedUrl("../pages/CreateSupergroupPage.qml"), { "isChannel": true })
+            }
+            Separator {
+                width: parent.width
+                color: Theme.secondaryHighlightColor
+                horizontalAlignment: Qt.AlignHCenter
             }
             MenuItem {
                 text: qsTr("Search Chats")
@@ -392,14 +429,15 @@ Page {
             visible: opacity > 0
             Behavior on opacity { FadeAnimation {} }
 
-            GlassItem {
+            Image {
                 id: pageStatus
-                width: Theme.itemSizeMedium
-                height: Theme.itemSizeMedium
-                color: "red"
-                falloffRadius: 0.1
-                radius: 0.2
-                cache: false
+                source: "image://theme/icon-m-search"
+                width: Theme.iconSizeMedium
+                height: Theme.iconSizeMedium
+                fillMode: Image.PreserveAspectFit
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: Theme.paddingLarge
             }
 
             MouseArea {
@@ -420,7 +458,7 @@ Page {
             Behavior on opacity { FadeAnimation {} }
             width: parent.width
             height: pageHeader.height
-            placeholderText: qsTr("Filter your chats...")
+            placeholderText: qsTr("Search chat...")
             canHide: text === ""
 
             onHideClicked: {
@@ -466,15 +504,21 @@ Page {
                 openMenuOnPressAndHold: true
                 menu: ContextMenu {
                     MenuItem {
-                        text: qsTr("Segna tutto come già letto")
+                        text: qsTr("Mark all as read")
                         onClicked: {
                             overviewPage.markAllChatsAsRead();
                         }
                     }
                     MenuItem {
-                        text: qsTr("Modifica cartelle")
+                        text: qsTr("Edit folders")
                         onClicked: {
                             pageStack.push(Qt.resolvedUrl("../pages/ChatFoldersPage.qml"));
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("Reorder Pinned Chats")
+                        onClicked: {
+                            pageStack.push(Qt.resolvedUrl("../pages/ReorderPinnedChatsPage.qml"));
                         }
                     }
                 }
@@ -492,7 +536,7 @@ Page {
                 }
 
                 Label {
-                    text: qsTr("Tutte")
+                    text: qsTr("All")
                     font.pixelSize: Theme.fontSizeExtraSmall
                     anchors.top: allIcon.bottom
                     anchors.topMargin: Theme.paddingSmall

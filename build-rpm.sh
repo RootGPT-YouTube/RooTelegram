@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# build-rpm.sh — Build harbour-rootelegram Beta 1.1
+# build-rpm.sh — Build harbour-rootelegram Beta 1.5
 #                per SailfishOS 5 con il Sailfish Platform SDK
 #
 # Prerequisiti:
@@ -9,7 +9,7 @@
 #   3. libtdjson.so per aarch64 presente in lib/aarch64/ (vedi note sotto)
 #
 # Uso:
-#   cd harbour-rootelegram-beta-1.1
+#   cd harbour-rootelegram-beta-1.5
 #   bash build-rpm.sh
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -17,7 +17,7 @@ set -euo pipefail
 
 # ── Configurazione ────────────────────────────────────────────────────────────
 PACKAGE_NAME="harbour-rootelegram"
-VERSION="1.1"
+VERSION="1.5"
 RELEASE="1"
 SFOS_TARGET="${SFOS_TARGET:-SailfishOS-5.0.0.62-aarch64}"
 SDK_DIR="${SDK_DIR:-$HOME/SailfishOS}"

@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -73,6 +78,7 @@ public:
     Q_INVOKABLE void setActiveFolder(int folderId);
 
     Q_INVOKABLE void calculateUnreadState();
+    Q_INVOKABLE QVariantMap getPrivateUnreadCounts() const;
 
     bool showAllChats() const;
     void setShowAllChats(bool showAll);
@@ -106,6 +112,7 @@ signals:
     void chatChanged(const qlonglong &changedChatId);
     void chatJoined(const qlonglong &chatId, const QString &chatTitle);
     void unreadStateChanged(int unreadMessagesCount, int unreadChatsCount);
+    void privateUnreadStateChanged();
 
 private:
     class ChatData;

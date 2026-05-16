@@ -1,18 +1,11 @@
 /*
-    This file is part of RooTelegram.
+    Forked in 2026 by RootGPT
 
-    RooTelegram is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    RooTelegram is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with RooTelegram. If not, see <http://www.gnu.org/licenses/>.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 */
 
 #ifndef APPSETTINGS_H
@@ -46,6 +39,8 @@ class AppSettings : public QObject {
     Q_PROPERTY(bool focusTextAreaOnChatOpen READ getFocusTextAreaOnChatOpen WRITE setFocusTextAreaOnChatOpen NOTIFY focusTextAreaOnChatOpenChanged)
     Q_PROPERTY(SponsoredMess sponsoredMess READ getSponsoredMess WRITE setSponsoredMess NOTIFY sponsoredMessChanged)
     Q_PROPERTY(bool highlightUnreadConversations READ highlightUnreadConversations WRITE setHighlightUnreadConversations NOTIFY highlightUnreadConversationsChanged)
+    Q_PROPERTY(bool coverHideGroupChannelUnread READ coverHideGroupChannelUnread WRITE setCoverHideGroupChannelUnread NOTIFY coverHideGroupChannelUnreadChanged)
+    Q_PROPERTY(bool disableVideoPreload READ disableVideoPreload WRITE setDisableVideoPreload NOTIFY disableVideoPreloadChanged)
 
 public:
     enum SponsoredMess {
@@ -130,6 +125,12 @@ public:
     bool highlightUnreadConversations() const;
     void setHighlightUnreadConversations(bool enable);
 
+    bool coverHideGroupChannelUnread() const;
+    void setCoverHideGroupChannelUnread(bool enable);
+
+    bool disableVideoPreload() const;
+    void setDisableVideoPreload(bool enable);
+
 signals:
     void sendByEnterChanged();
     void focusTextAreaAfterSendChanged();
@@ -153,6 +154,8 @@ signals:
     void focusTextAreaOnChatOpenChanged();
     void sponsoredMessChanged();
     void highlightUnreadConversationsChanged();
+    void coverHideGroupChannelUnreadChanged();
+    void disableVideoPreloadChanged();
 
 private:
     QSettings settings;

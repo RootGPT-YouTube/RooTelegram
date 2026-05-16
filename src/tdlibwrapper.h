@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020-22 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -183,6 +188,7 @@ public:
     Q_INVOKABLE void sendTextMessage(qlonglong chatId, const QString &message, qlonglong replyToMessageId = 0);
     Q_INVOKABLE void sendTextMessageWithCustomEmoji(qlonglong chatId, const QString &message, const QVariantList &customEmojiEntities, qlonglong replyToMessageId = 0);
     Q_INVOKABLE void sendPhotoMessage(qlonglong chatId, const QString &filePath, const QString &message, qlonglong replyToMessageId = 0);
+    Q_INVOKABLE void sendPhotoAlbum(qlonglong chatId, const QStringList &filePaths, const QString &caption, qlonglong replyToMessageId = 0);
     Q_INVOKABLE void sendVideoMessage(qlonglong chatId, const QString &filePath, const QString &message, qlonglong replyToMessageId = 0);
     Q_INVOKABLE void sendDocumentMessage(qlonglong chatId, const QString &filePath, const QString &message, qlonglong replyToMessageId = 0);
     Q_INVOKABLE void sendVoiceNoteMessage(qlonglong chatId, const QString &filePath, const QString &message, qlonglong replyToMessageId = 0);
@@ -204,6 +210,7 @@ public:
     Q_INVOKABLE void deleteMessages(const QString &chatId, const QVariantList messageIds);
     Q_INVOKABLE void deleteChatMessagesBySender(qlonglong chatId, qlonglong senderUserId);
     Q_INVOKABLE void banChatMember(qlonglong chatId, qlonglong userId, qlonglong bannedUntilDate = 0);
+    Q_INVOKABLE void unbanChatMember(qlonglong chatId, qlonglong userId);
     Q_INVOKABLE void reportChatSpam(qlonglong chatId, const QVariantList &messageIds);
     Q_INVOKABLE void getMapThumbnailFile(const QString &chatId, double latitude, double longitude, int width, int height, const QString &extra);
     Q_INVOKABLE void getRecentStickers();
@@ -216,7 +223,8 @@ public:
     Q_INVOKABLE QString getCustomEmojiFallback(const QString &customEmojiId);
     Q_INVOKABLE void cacheCustomEmojiFromSticker(const QVariantMap &sticker);
     Q_INVOKABLE bool isCustomEmojiFileId(int fileId) const;
-    Q_INVOKABLE void getSupergroupMembers(const QString &groupId, int limit, int offset);
+    Q_INVOKABLE void getSupergroupMembers(const QString &groupId, int limit, int offset, const QString &filterType = QString(), const QString &extra = QString());
+    Q_INVOKABLE void getChatEventLog(qlonglong chatId, qlonglong fromEventId = 0, int limit = 50);
     Q_INVOKABLE void getChatJoinRequests(qlonglong chatId, const QString &inviteLink = QString(), const QString &query = QString(), const QVariantMap &offsetRequest = QVariantMap(), int limit = 50);
     Q_INVOKABLE void processChatJoinRequest(qlonglong chatId, qlonglong userId, bool approve);
     Q_INVOKABLE void getGroupFullInfo(const QString &groupId, bool isSuperGroup);
@@ -235,8 +243,15 @@ public:
     Q_INVOKABLE void setChatSlowModeDelay(const QString &chatId, int delay);
     Q_INVOKABLE void setChatDescription(const QString &chatId, const QString &description);
     Q_INVOKABLE void setChatTitle(const QString &chatId, const QString &title);
+    Q_INVOKABLE void setChatPhoto(const QString &chatId, const QString &filePath);
+    Q_INVOKABLE void setChatDiscussionGroup(qlonglong chatId, qlonglong discussionChatId);
+    Q_INVOKABLE void getSuitableDiscussionChats();
+    Q_INVOKABLE void getChatStatisticsUrl(qlonglong chatId, bool isDark = false);
+    Q_INVOKABLE void setChatTheme(qlonglong chatId, const QString &themeName);
+    Q_INVOKABLE QVariantList getAvailableChatThemes() const;
     Q_INVOKABLE void setBio(const QString &bio);
     Q_INVOKABLE void toggleSupergroupIsAllHistoryAvailable(const QString &groupId, bool isAllHistoryAvailable);
+    Q_INVOKABLE void upgradeBasicGroupChatToSupergroupChat(qlonglong chatId);
     Q_INVOKABLE void setPollAnswer(const QString &chatId, qlonglong messageId, QVariantList optionIds);
     Q_INVOKABLE void stopPoll(const QString &chatId, qlonglong messageId);
     Q_INVOKABLE void getPollVoters(const QString &chatId, qlonglong messageId, int optionId, int limit, int offset, const QString &extra);
@@ -326,6 +341,7 @@ signals:
     void pinnedMessagesReceived(qlonglong chatId, qlonglong messageThreadId, const QVariantList &messages);
     void sponsoredMessageReceived(qlonglong chatId, const QVariantMap &message);
     void messageLinkInfoReceived(const QString &url, const QVariantMap &messageLinkInfo, const QString &extra);
+    void chatStatisticsUrlReceived(qlonglong chatId, const QString &url);
     void newMessageReceived(qlonglong chatId, const QVariantMap &message);
     void copyToDownloadsSuccessful(const QString &fileName, const QString &filePath);
     void copyToDownloadsError(const QString &fileName, const QString &filePath);
@@ -353,6 +369,7 @@ signals:
     void customEmojiAssetsUpdated();
     void emojiSearchSuccessful(const QVariantList &result);
     void chatMembersReceived(const QString &extra, const QVariantList &members, int totalMembers);
+    void chatEventLogReceived(qlonglong chatId, const QVariantList &events);
     void chatJoinRequestsReceived(qlonglong chatId, int totalCount, const QVariantList &requests);
     void chatPendingJoinRequestsUpdated(qlonglong chatId, const QVariantMap &pendingJoinRequests);
     void newChatJoinRequest(qlonglong chatId, const QVariantMap &request, const QVariantMap &inviteLink);
@@ -392,6 +409,8 @@ signals:
     void chatUnreadReactionCountUpdated(qlonglong chatId, int unreadReactionCount);
     void tgUrlFound(const QString &tgUrl);
     void reactionsUpdated();
+    void suitableDiscussionChatsReceived(const QVariantList &chatIds);
+    void availableChatThemesUpdated(const QVariantList &themes);
 
 public slots:
     void handleVersionDetected(const QString &version);
@@ -427,6 +446,8 @@ public slots:
     void handleActiveEmojiReactionsUpdated(const QStringList& emojis);
     void handleForumTopicsReceived(qlonglong chatId, const QVariantList &topics, int totalCount, qlonglong nextOffsetDate, qlonglong nextOffsetMessageId, qlonglong nextOffsetMessageThreadId);
     void handleGetPageSourceFinished();
+    void handleChatsReceived(const QVariantMap &chats);
+    void handleChatThemesUpdated(const QVariantList &themes);
 
 private:
     void setOption(const QString &name, const QString &type, const QVariant &value);
@@ -469,6 +490,7 @@ private:
     QHash<qlonglong,Group*> superGroups;
     EmojiSearchWorker emojiSearchWorker;
     QStringList activeEmojiReactions;
+    QVariantList availableChatThemes;
 
     int versionNumber;
     QString activeChatSearchName;

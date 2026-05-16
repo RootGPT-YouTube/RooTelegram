@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -70,6 +75,7 @@ signals:
     void messagesReceivedWithExtra(const QVariantList &messages, int totalCount, const QString &extra);
     void pinnedMessagesFound(qlonglong chatId, qlonglong messageThreadId, const QVariantList &messages);
     void messageLinkInfoReceived(const QString &url, const QVariantMap &messageLinkInfo, const QString &extra);
+    void chatStatisticsUrlReceived(qlonglong chatId, const QString &url);
     void sponsoredMessageReceived(qlonglong chatId, const QVariantMap &message);
     void newMessageReceived(qlonglong chatId, const QVariantMap &message);
     void messageInformation(qlonglong chatId, qlonglong messageId, const QVariantMap &message);
@@ -91,6 +97,7 @@ signals:
     void stickerSet(const QVariantMap &stickerSet);
     void customEmojiStickers(const QVariantList &stickers, const QString &extra);
     void chatMembers(const QString &extra, const QVariantList &members, int totalMembers);
+    void chatEventLogReceived(qlonglong chatId, const QVariantList &events);
     void chatJoinRequests(qlonglong chatId, int totalCount, const QVariantList &requests);
     void chatPendingJoinRequestsUpdated(qlonglong chatId, const QVariantMap &pendingJoinRequests);
     void newChatJoinRequest(qlonglong chatId, const QVariantMap &request, const QVariantMap &inviteLink);
@@ -125,6 +132,7 @@ signals:
     void chatUnreadMentionCountUpdated(qlonglong chatId, int unreadMentionCount);
     void chatUnreadReactionCountUpdated(qlonglong chatId, int unreadReactionCount);
     void activeEmojiReactionsUpdated(const QStringList& emojis);
+    void chatThemesUpdated(const QVariantList &themes);
 
 private:
     typedef void (TDLibReceiver::*Handler)(const QVariantMap &);
@@ -167,6 +175,7 @@ private:
     void processUpdateNewMessage(const QVariantMap &receivedInformation);
     void processMessage(const QVariantMap &receivedInformation);
     void processMessageLinkInfo(const QVariantMap &receivedInformation);
+    void processHttpUrl(const QVariantMap &receivedInformation);
     void processMessageSendSucceeded(const QVariantMap &receivedInformation);
     void processUpdateActiveNotifications(const QVariantMap &receivedInformation);
     void processUpdateNotificationGroup(const QVariantMap &receivedInformation);
@@ -182,6 +191,7 @@ private:
     void processStickerSets(const QVariantMap &receivedInformation);
     void processStickerSet(const QVariantMap &receivedInformation);
     void processChatMembers(const QVariantMap &receivedInformation);
+    void processChatEvents(const QVariantMap &receivedInformation);
     void processChatJoinRequests(const QVariantMap &receivedInformation);
     void processUpdateChatPendingJoinRequests(const QVariantMap &receivedInformation);
     void processUpdateNewChatJoinRequest(const QVariantMap &receivedInformation);
@@ -218,10 +228,12 @@ private:
     void processUpdateActiveEmojiReactions(const QVariantMap &receivedInformation);
     void processForumTopics(const QVariantMap &receivedInformation);
     void processForumTopic(const QVariantMap &receivedInformation);
+    void processForumTopicInfoCreated(const QVariantMap &receivedInformation);
     void processUpdateForumTopicInfo(const QVariantMap &receivedInformation);
     void processUpdateForumTopicUpdate(const QVariantMap &receivedInformation);
     void processUpdateChatFolders(const QVariantMap &receivedInformation);
     void processChatFolderInfo(const QVariantMap &receivedInformation);
+    void processUpdateChatThemes(const QVariantMap &receivedInformation);
 };
 
 #endif // TDLIBRECEIVER_H

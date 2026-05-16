@@ -1,18 +1,11 @@
 /*
-    This file is part of RooTelegram.
+    Forked in 2026 by RootGPT
 
-    RooTelegram is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    RooTelegram is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with RooTelegram. If not, see <http://www.gnu.org/licenses/>.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 */
 
 #include "appsettings.h"
@@ -43,9 +36,11 @@ namespace {
     const QString KEY_FOCUS_TEXTAREA_ON_CHAT_OPEN("focusTextAreaOnChatOpen");
     const QString KEY_SPONSORED_MESS("sponsoredMess");
     const QString KEY_HIGHLIGHT_UNREADCONVS("highlightUnreadConversations");
+    const QString KEY_COVER_HIDE_GROUP_CHANNEL_UNREAD("coverHideGroupChannelUnread");
+    const QString KEY_DISABLE_VIDEO_PRELOAD("disableVideoPreload");
 }
 
-AppSettings::AppSettings(QObject *parent) : QObject(parent), settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/de.ygriega/rootelegram/settings.conf", QSettings::NativeFormat)
+AppSettings::AppSettings(QObject *parent) : QObject(parent), settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/com.github.RootGPT_YouTube/rootelegram/settings.conf", QSettings::NativeFormat)
 {
 }
 
@@ -327,6 +322,34 @@ void AppSettings::setHighlightUnreadConversations(bool enable)
         LOG(KEY_HIGHLIGHT_UNREADCONVS << enable);
         settings.setValue(KEY_HIGHLIGHT_UNREADCONVS, enable);
         emit highlightUnreadConversationsChanged();
+    }
+}
+
+bool AppSettings::coverHideGroupChannelUnread() const
+{
+    return settings.value(KEY_COVER_HIDE_GROUP_CHANNEL_UNREAD, false).toBool();
+}
+
+void AppSettings::setCoverHideGroupChannelUnread(bool enable)
+{
+    if (coverHideGroupChannelUnread() != enable) {
+        LOG(KEY_COVER_HIDE_GROUP_CHANNEL_UNREAD << enable);
+        settings.setValue(KEY_COVER_HIDE_GROUP_CHANNEL_UNREAD, enable);
+        emit coverHideGroupChannelUnreadChanged();
+    }
+}
+
+bool AppSettings::disableVideoPreload() const
+{
+    return settings.value(KEY_DISABLE_VIDEO_PRELOAD, false).toBool();
+}
+
+void AppSettings::setDisableVideoPreload(bool enable)
+{
+    if (disableVideoPreload() != enable) {
+        LOG(KEY_DISABLE_VIDEO_PRELOAD << enable);
+        settings.setValue(KEY_DISABLE_VIDEO_PRELOAD, enable);
+        emit disableVideoPreloadChanged();
     }
 }
 

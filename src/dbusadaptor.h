@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,7 +31,7 @@ class DBusAdaptor : public QDBusAbstractAdaptor
 {
 
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "de.ygriega.rootelegram")
+    Q_CLASSINFO("D-Bus Interface", "com.github.RootGPT_YouTube.rootelegram")
 
 public:
     DBusAdaptor(QObject *parent);

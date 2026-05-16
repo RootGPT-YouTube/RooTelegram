@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -55,7 +60,7 @@ namespace {
 
     const QString APP_NAME("RooTelegram");
     const QString APP_OWNER("harbour-rootelegram");
-    const QString APP_ORIGIN("de.ygriega.rootelegram");
+    const QString APP_ORIGIN("com.github.RootGPT_YouTube.rootelegram");
     const QString NOTIFICATION_CATEGORY("im.received");
 
     // Notification hints
@@ -351,7 +356,7 @@ void NotificationManager::publishNotification(const NotificationGroup *notificat
         remoteActionArguments.append(QString::number(notificationGroup->chatId));
         remoteActionArguments.append(messageMap.value(ID).toString());
         nemoNotification->setRemoteAction(Notification::remoteAction("default", "openMessage",
-            APP_ORIGIN, "/de/ygriega/rootelegram", APP_ORIGIN,
+            APP_ORIGIN, "/com/github/RootGPT_YouTube/rootelegram", APP_ORIGIN,
             "openMessage", remoteActionArguments));
     }
 

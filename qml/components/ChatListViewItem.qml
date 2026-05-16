@@ -100,6 +100,23 @@ PhotoTextsListItem {
                     }
                     text: model.display.type['@type'] === "chatTypePrivate" ? qsTr("User Info") : qsTr("Group Info")
                 }
+
+                MenuItem {
+                    visible: model.display.type['@type'] === "chatTypePrivate"
+                    text: qsTr("Delete Chat")
+                    onClicked: {
+                        var chatIdToDelete = chat_id;
+                        var revoke = !!model.display.can_be_deleted_for_all_users;
+                        Remorse.itemAction(listItem, qsTr("Deleting chat"), function() {
+                            tdLibWrapper.sendRequest({
+                                "@type": "deleteChatHistory",
+                                "chat_id": chatIdToDelete,
+                                "remove_from_chat_list": true,
+                                "revoke": revoke
+                            });
+                        });
+                    }
+                }
             }
         }
     }

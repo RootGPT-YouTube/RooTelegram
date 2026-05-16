@@ -1,3 +1,12 @@
+/*
+    Forked in 2026 by RootGPT
+
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
+*/
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 import "../"
@@ -363,7 +372,7 @@ ChatInformationTabItemBase {
             if (filteredListModel.count === 0 && !noMoreResults) {
                 requestMessages();
             }
-            appNotification.show(message !== "" ? message : qsTr("Impossibile caricare i contenuti."));
+            appNotification.show(message !== "" ? message : qsTr("Unable to load content."));
         }
     }
 

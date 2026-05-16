@@ -1,3 +1,11 @@
+# Forked in 2026 by RootGPT
+#
+# This file is part of RooTelegram, a fork of the Fernschreiber project
+# (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+# licensed under the GNU General Public License v3.0. The original
+# license is available at:
+# https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
+
 # NOTICE:
 #
 # Application name defined in TARGET has a corresponding QML filename.
@@ -13,6 +21,7 @@
 TARGET = harbour-rootelegram
 
 CONFIG += sailfishapp sailfishapp_i18n c++17
+
 
 PKGCONFIG += nemonotifications-qt5 zlib openssl glib-2.0
 
@@ -146,10 +155,19 @@ DISTFILES += qml/harbour-rootelegram.qml \
     qml/pages/NewChatPage.qml \
     qml/pages/OverviewPage.qml \
     qml/pages/AboutPage.qml \
+    qml/pages/AddChatMembersPage.qml \
+    qml/pages/BlacklistPage.qml \
+    qml/pages/ReorderPinnedChatsPage.qml \
+    qml/pages/ChatRecentActionsPage.qml \
+    qml/pages/GroupTypePage.qml \
+    qml/pages/SupergroupMembersPage.qml \
     qml/pages/PollCreationPage.qml \
     qml/pages/PollResultsPage.qml \
     qml/pages/SearchChatsPage.qml \
+    qml/pages/SelectDiscussionGroupPage.qml \
     qml/pages/SettingsPage.qml \
+    qml/pages/ChannelAppearancePage.qml \
+    qml/pages/ChannelStatisticsPage.qml \
     qml/pages/VideoPage.qml \
     rpm/harbour-rootelegram.changes \
     rpm/harbour-rootelegram.spec \
@@ -159,18 +177,8 @@ DISTFILES += qml/harbour-rootelegram.qml \
 
 SAILFISHAPP_ICONS = 86x86 108x108 128x128 172x172 256x256
 
-TRANSLATIONS += translations/harbour-rootelegram-de.ts \
-                translations/harbour-rootelegram-es.ts \
-                translations/harbour-rootelegram-fi.ts \
-                translations/harbour-rootelegram-fr.ts \
-                translations/harbour-rootelegram-hu.ts \
-                translations/harbour-rootelegram-it.ts \
-                translations/harbour-rootelegram-pl.ts \
-                translations/harbour-rootelegram-ru.ts \
-                translations/harbour-rootelegram-sv.ts \
-                translations/harbour-rootelegram-sk.ts \
-                translations/harbour-rootelegram-en.ts \
-                translations/harbour-rootelegram-zh_CN.ts
+TRANSLATIONS += translations/harbour-rootelegram-it.ts \
+                translations/harbour-rootelegram-en.ts
 
 equals(QT_ARCH, arm) {
     message(Building ARM)

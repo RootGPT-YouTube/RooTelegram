@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -72,13 +77,13 @@ Page {
     property var pinnedMessagesByThread: ({})
     property var availableReactions
     property var pendingSharedResources: []
-    readonly property bool canManageJoinRequests: userIsMember
+    readonly property bool canManageJoinRequests: !!(userIsMember
                                                   && isSuperGroup
-                                                  && !!chatGroupInformation
-                                                  && !!chatGroupInformation.status
+                                                  && chatGroupInformation
+                                                  && chatGroupInformation.status
                                                   && (chatGroupInformation.status["@type"] === "chatMemberStatusCreator"
                                                       || chatGroupInformation.status.can_invite_users
-                                                      || (chatGroupInformation.status.rights && chatGroupInformation.status.rights.can_invite_users))
+                                                      || (chatGroupInformation.status.rights && chatGroupInformation.status.rights.can_invite_users)))
     readonly property int pendingJoinRequestsCount: {
         var pendingJoinRequests = (chatInformation && chatInformation.pending_join_requests) ? chatInformation.pending_join_requests : null;
         if (!pendingJoinRequests) {
@@ -341,6 +346,7 @@ Page {
         attachmentPreviewRow.fileProperties = null;
         attachmentPreviewRow.locationData = null;
         attachmentPreviewRow.attachmentDescription = "";
+        attachmentPreviewRow.imagePaths = [];
         rootelegramUtils.stopGeoLocationUpdates();
     }
 
@@ -368,7 +374,11 @@ Page {
         } else {
             if (attachmentPreviewRow.visible) {
                 if (attachmentPreviewRow.isPicture) {
-                    tdLibWrapper.sendPhotoMessage(chatInformation.id, attachmentPreviewRow.fileProperties.filePath, newMessageTextField.text, newMessageColumn.replyToMessageId);
+                    if (attachmentPreviewRow.imagePaths && attachmentPreviewRow.imagePaths.length > 1) {
+                        tdLibWrapper.sendPhotoAlbum(chatInformation.id, attachmentPreviewRow.imagePaths, newMessageTextField.text, newMessageColumn.replyToMessageId);
+                    } else {
+                        tdLibWrapper.sendPhotoMessage(chatInformation.id, attachmentPreviewRow.fileProperties.filePath, newMessageTextField.text, newMessageColumn.replyToMessageId);
+                    }
                 }
                 if (attachmentPreviewRow.isVideo) {
                     tdLibWrapper.sendVideoMessage(chatInformation.id, attachmentPreviewRow.fileProperties.filePath, newMessageTextField.text, newMessageColumn.replyToMessageId);
@@ -1479,7 +1489,7 @@ Page {
             },
             NamedAction {
                 visible: messageOptionsDrawer.showForwardMessageMenuItem && messageOptionsDrawer.myMessage.can_be_forwarded
-                name: qsTr("Inoltra messaggio")
+                name: qsTr("Forward message")
                 action: function () {
                     startForwardingMessages([messageOptionsDrawer.myMessage])
                 }
@@ -1506,7 +1516,7 @@ Page {
             },
             NamedAction {
                 visible: messageOptionsDrawer.showDeleteMessageMenuItem
-                name: qsTr("Cancella messaggio")
+                name: qsTr("Delete message")
                 action: function() {
                     if (messageOptionsDrawer.sourceItem) {
                         messageOptionsDrawer.sourceItem.deleteMessage()
@@ -1747,13 +1757,14 @@ Page {
                         opacity: visible ? 1 : 0
                         Behavior on opacity { FadeAnimation {} }
                         width: parent.width - chatPictureThumbnail.width - Theme.paddingMedium
-                        height: chatNameText.height + chatStatusText.height
+                        height: chatNameText.height + (topicNameText.visible ? topicNameText.height : 0) + chatStatusText.height
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: chatPage.isPortrait ? Theme.paddingMedium : Theme.paddingSmall
                         Label {
                             id: chatNameText
                             width: Math.min(implicitWidth, parent.width)
                             anchors.right: parent.right
+                            anchors.top: parent.top
                             text: chatInformation.title !== "" ? Emoji.emojify(chatInformation.title, font.pixelSize) : qsTr("Unknown")
                             textFormat: Text.StyledText
                             font.pixelSize: chatPage.isPortrait ? Theme.fontSizeLarge : Theme.fontSizeMedium
@@ -1767,6 +1778,7 @@ Page {
                             visible: chatPage.messageThreadId !== 0
                             width: Math.min(implicitWidth, parent.width)
                             anchors.right: parent.right
+                            anchors.top: chatNameText.bottom
                             text: chatPage.currentTopicInfo ? Emoji.emojify("# " + (chatPage.currentTopicInfo.name || ""), font.pixelSize) : "# …"
                             textFormat: Text.StyledText
                             font.pixelSize: chatPage.isPortrait ? Theme.fontSizeSmall : Theme.fontSizeTiny
@@ -1978,7 +1990,7 @@ Page {
                             readonly property int profileThumbnailDimensions: showUserInfo ? Theme.itemSizeSmall : 0
                             readonly property int pageMarginDouble: 2 * Theme.horizontalPageMargin
                             readonly property int paddingMediumDouble: 2 * Theme.paddingMedium
-                            readonly property int entryWidth: chatView.width - pageMarginDouble
+                            readonly property int entryWidth: chatView.width - 6
                             readonly property int textItemWidth: entryWidth - profileThumbnailDimensions - Theme.paddingSmall
                             readonly property int backgroundWidth: page.isChannel ? textItemWidth : textItemWidth - pageMarginDouble
                             readonly property int backgroundRadius: textItemWidth/50
@@ -2406,7 +2418,7 @@ Page {
                     Label {
                         id: closedLabel
                         anchors.centerIn: parent
-                        text: qsTr("Il topic è chiuso")
+                        text: qsTr("Topic is closed")
                         color: Theme.secondaryColor
                         font.pixelSize: Theme.fontSizeSmall
                     }
@@ -2576,18 +2588,48 @@ Page {
                                 height: width
                                 icon.source: "image://theme/icon-m-image"
                                 onClicked: {
-                                    var picker = pageStack.push("Sailfish.Pickers.ImagePickerPage", {
+                                    var picker = pageStack.push("Sailfish.Pickers.MultiImagePickerDialog", {
                                         allowedOrientations: chatPage.allowedOrientations
                                     })
-                                    picker.selectedContentPropertiesChanged.connect(function(){
+                                    var maxAlbumSize = 10;
+                                    picker.accepted.connect(function() {
+                                        if (!picker.selectedContent || picker.selectedContent.count === 0) {
+                                            return;
+                                        }
+                                        var paths = [];
+                                        var firstProps = null;
+                                        var totalCount = picker.selectedContent.count;
+                                        var count = Math.min(totalCount, maxAlbumSize);
+                                        for (var i = 0; i < count; i++) {
+                                            var entry = picker.selectedContent.get(i);
+                                            if (entry && entry.filePath) {
+                                                paths.push(entry.filePath);
+                                                if (!firstProps) {
+                                                    firstProps = {
+                                                        filePath: entry.filePath,
+                                                        fileName: entry.fileName,
+                                                        url: entry.url,
+                                                        mimeType: entry.mimeType,
+                                                        fileSize: entry.fileSize
+                                                    };
+                                                }
+                                            }
+                                        }
+                                        if (paths.length === 0) {
+                                            return;
+                                        }
+                                        if (totalCount > maxAlbumSize) {
+                                            appNotification.show(qsTr("Telegram allows up to %1 images per album.").arg(maxAlbumSize));
+                                        }
                                         attachmentOptionsFlickable.isNeeded = false;
                                         newMessageColumn.quickEmojiPickerVisible = false;
                                         newMessageColumn.quickPremiumEmojiPickerVisible = false;
-                                        Debug.log("Selected document: ", picker.selectedContentProperties.filePath );
-                                        attachmentPreviewRow.fileProperties = picker.selectedContentProperties;
+                                        Debug.log("Selected images: ", paths.length, paths[0]);
+                                        attachmentPreviewRow.fileProperties = firstProps;
+                                        attachmentPreviewRow.imagePaths = paths;
                                         attachmentPreviewRow.isPicture = true;
                                         controlSendButton();
-                                    })
+                                    });
                                 }
                             }
                             IconButton {
@@ -2948,6 +2990,7 @@ Page {
                         property var locationData: null;
                         property var geocodedAddress: qsTr("Unknown address")
                         property var fileProperties: null;
+                        property var imagePaths: [];
                         property string attachmentDescription: "";
                         property real landscapePreviewAspectRatio: (16.0 / 9.0);
                         property real portraitPreviewAspectRatio: (9.0 / 16.0);
@@ -3061,6 +3104,29 @@ Page {
                             mimeType: !!attachmentPreviewRow.fileProperties ? attachmentPreviewRow.fileProperties.mimeType || "" : ""
                             source: !!attachmentPreviewRow.fileProperties ? attachmentPreviewRow.getAttachmentFileUrl() : ""
                             visible: attachmentPreviewRow.isPicture || attachmentPreviewRow.isVideo
+
+                            Rectangle {
+                                id: albumCountBadge
+                                visible: attachmentPreviewRow.isPicture && attachmentPreviewRow.imagePaths && attachmentPreviewRow.imagePaths.length > 1
+                                anchors {
+                                    right: parent.right
+                                    bottom: parent.bottom
+                                    margins: Theme.paddingSmall
+                                }
+                                width: albumCountLabel.implicitWidth + Theme.paddingMedium
+                                height: albumCountLabel.implicitHeight + Theme.paddingSmall
+                                radius: height / 2
+                                color: Theme.rgba(Theme.highlightBackgroundColor, Theme.opacityHigh)
+
+                                Label {
+                                    id: albumCountLabel
+                                    anchors.centerIn: parent
+                                    text: "+" + (attachmentPreviewRow.imagePaths ? attachmentPreviewRow.imagePaths.length : 0)
+                                    color: Theme.primaryColor
+                                    font.pixelSize: Theme.fontSizeExtraSmall
+                                    font.bold: true
+                                }
+                            }
                         }
 
                         Label {
@@ -3385,6 +3451,29 @@ Page {
                                 }
                             }
                         }
+
+                        Item {
+                            width: newMessageColumn.compactAttachmentButtonSize
+                            height: width
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: width / 2
+                                color: Theme.rgba(Theme.primaryColor, 0.16)
+                            }
+                            Label {
+                                anchors.centerIn: parent
+                                text: "||"
+                                font.bold: true
+                                font.pixelSize: Theme.fontSizeExtraSmall
+                                color: Theme.primaryColor
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    applyInlineFormatting("||", "||");
+                                }
+                            }
+                        }
                     }
 
                     Row {
@@ -3456,7 +3545,7 @@ Page {
 
                         IconButton {
                             id: newMessageSendButton
-                            icon.source: "image://theme/icon-m-chat"
+                            icon.source: "image://theme/icon-m-enter"
                             anchors.bottom: parent.bottom
                             anchors.bottomMargin: Theme.paddingSmall
                             visible: !inlineQuery.userNameIsValid && (!appSettings.sendByEnter || attachmentPreviewRow.visible)

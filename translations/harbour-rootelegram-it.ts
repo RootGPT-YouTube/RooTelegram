@@ -65,27 +65,66 @@
     </message>
     <message>
         <source>This project uses OpenStreetMap Nominatim for reverse geocoding of location attachments. Thanks for making it available as web service!</source>
-        <translation type="unfinished"></translation>
+        <translation>Questo progetto utilizza OpenStreetMap Nominatim per il geocoding inverso degli allegati di posizione. Grazie per averlo reso disponibile come servizio web!</translation>
     </message>
     <message>
         <source>Open OSM Nominatim Wiki</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri la wiki di OSM Nominatim</translation>
     </message>
     <message>
         <source>Fernschreiber</source>
-        <translation type="unfinished"></translation>
+        <translation>Fernschreiber</translation>
     </message>
     <message>
         <source>Yottagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Yottagram</translation>
     </message>
     <message>
-        <source>Codice sorgente su GitHub</source>
-        <translation type="unfinished"></translation>
+        <source>Source code on GitHub</source>
+        <translation>Codice sorgente su GitHub</translation>
     </message>
     <message>
         <source>Fork by RootGPT - based on Fernschreiber by Sebastian J. Wolf and Yottagram by Michal Szczepaniak.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fork di RootGPT — basato su Fernschreiber di Sebastian J. Wolf e Yottagram di Michal Szczepaniak.</translation>
+    </message>
+</context>
+<context>
+    <name>AddChatMembersPage</name>
+    <message>
+        <source>Refresh</source>
+        <translation>Aggiorna</translation>
+    </message>
+    <message>
+        <source>Add Members</source>
+        <translation>Aggiungi membri</translation>
+    </message>
+    <message>
+        <source>Search a contact...</source>
+        <translation>Ricerca contatto...</translation>
+    </message>
+    <message>
+        <source>No contacts found.</source>
+        <translation>Nessun contatto trovato.</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have any contacts.</source>
+        <translation>Non hai nessun contatto</translation>
+    </message>
+    <message>
+        <source>Added</source>
+        <translation>Aggiunto</translation>
+    </message>
+    <message>
+        <source>Adding…</source>
+        <translation>Aggiunta in corso…</translation>
+    </message>
+    <message>
+        <source>Loading contacts...</source>
+        <translation>Carico contatti...</translation>
+    </message>
+    <message>
+        <source>Member added.</source>
+        <translation>Membro aggiunto.</translation>
     </message>
 </context>
 <context>
@@ -100,94 +139,171 @@
     </message>
 </context>
 <context>
+    <name>BlacklistPage</name>
+    <message>
+        <source>Refresh</source>
+        <translation>Aggiorna</translation>
+    </message>
+    <message>
+        <source>Blacklist</source>
+        <translation>Lista nera</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1 blocked</source>
+        <translation>
+            <numerusform>%1 bloccato</numerusform>
+            <numerusform>%1 bloccati</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>No blocked users.</source>
+        <translation>Nessun utente bloccato.</translation>
+    </message>
+    <message>
+        <source>Block a user from their profile to see them here.</source>
+        <translation>Blocca un utente dal suo profilo per vederlo qui.</translation>
+    </message>
+    <message>
+        <source>Unblocking…</source>
+        <translation>Sblocco in corso…</translation>
+    </message>
+    <message>
+        <source>Unblock</source>
+        <translation>Sblocca</translation>
+    </message>
+    <message>
+        <source>Load more</source>
+        <translation>Carica altri</translation>
+    </message>
+    <message>
+        <source>Loading blocked users...</source>
+        <translation>Caricamento utenti bloccati...</translation>
+    </message>
+    <message>
+        <source>User has been unblocked.</source>
+        <translation>Utente sbloccato.</translation>
+    </message>
+</context>
+<context>
+    <name>ChannelAppearancePage</name>
+    <message>
+        <source>Theme cleared</source>
+        <translation>Tema rimosso</translation>
+    </message>
+    <message>
+        <source>Theme set: %1</source>
+        <translation>Tema impostato: %1</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Aspetto</translation>
+    </message>
+    <message>
+        <source>Pick a chat theme. The selected preset is applied to every member viewing this channel.</source>
+        <translation>Scegli un tema chat. Il preset selezionato è applicato a tutti i membri che vedono questo canale.</translation>
+    </message>
+    <message>
+        <source>Default (no theme)</source>
+        <translation>Predefinito (nessun tema)</translation>
+    </message>
+    <message>
+        <source>No themes available yet</source>
+        <translation>Nessun tema disponibile</translation>
+    </message>
+    <message>
+        <source>Themes are pushed by Telegram after sign-in. Try again in a moment.</source>
+        <translation>I temi vengono inviati da Telegram dopo l&apos;accesso. Riprova fra un momento.</translation>
+    </message>
+</context>
+<context>
     <name>ChatFoldersPage</name>
     <message>
-        <source>Cartella creata.</source>
-        <translation type="unfinished"></translation>
+        <source>Folder created.</source>
+        <translation>Cartella creata.</translation>
     </message>
     <message>
-        <source>Impossibile creare la cartella %1</source>
-        <translation type="unfinished"></translation>
+        <source>Unable to create folder %1</source>
+        <translation>Impossibile creare la cartella %1</translation>
     </message>
     <message>
-        <source>Impossibile aggiornare l&apos;ordine delle cartelle.</source>
-        <translation type="unfinished"></translation>
+        <source>Unable to update folder order.</source>
+        <translation>Impossibile aggiornare l&apos;ordine delle cartelle.</translation>
     </message>
     <message>
-        <source>Aggiorna</source>
-        <translation type="unfinished"></translation>
+        <source>Refresh</source>
+        <translation>Aggiorna</translation>
     </message>
     <message>
-        <source>Modifica cartelle</source>
-        <translation type="unfinished"></translation>
+        <source>Edit folders</source>
+        <translation>Modifica cartelle</translation>
     </message>
     <message>
-        <source>Tutte</source>
-        <translation type="unfinished"></translation>
+        <source>All</source>
+        <translation>Tutte</translation>
     </message>
     <message>
-        <source>Cartelle personalizzate</source>
-        <translation type="unfinished"></translation>
+        <source>Custom folders</source>
+        <translation>Cartelle personalizzate</translation>
     </message>
     <message>
-        <source>Crea nuova cartella</source>
-        <translation type="unfinished"></translation>
+        <source>Create new folder</source>
+        <translation>Crea nuova cartella</translation>
     </message>
     <message>
-        <source>Nome cartella</source>
-        <translation type="unfinished"></translation>
+        <source>Folder name</source>
+        <translation>Nome cartella</translation>
     </message>
     <message>
-        <source>Inserisci il nome della cartella</source>
-        <translation type="unfinished"></translation>
+        <source>Enter the folder name</source>
+        <translation>Inserisci il nome della cartella</translation>
     </message>
     <message>
-        <source>Crea cartella</source>
-        <translation type="unfinished"></translation>
+        <source>Create folder</source>
+        <translation>Crea cartella</translation>
     </message>
     <message>
-        <source>Eliminazione cartella</source>
-        <translation type="unfinished"></translation>
+        <source>Deleting folder</source>
+        <translation>Eliminazione cartella</translation>
     </message>
     <message>
-        <source>Cartella eliminata.</source>
-        <translation type="unfinished"></translation>
+        <source>Folder deleted.</source>
+        <translation>Cartella eliminata.</translation>
     </message>
     <message>
-        <source>Impossibile eliminare la cartella %1</source>
-        <translation type="unfinished"></translation>
+        <source>Unable to delete folder %1</source>
+        <translation>Impossibile eliminare la cartella %1</translation>
     </message>
     <message>
-        <source>Impossibile eliminare la cartella.</source>
-        <translation type="unfinished"></translation>
+        <source>Unable to delete folder.</source>
+        <translation>Impossibile eliminare la cartella.</translation>
     </message>
     <message>
-        <source>Il nome cartella deve avere massimo 12 caratteri.</source>
-        <translation type="unfinished"></translation>
+        <source>Folder name must be at most 12 characters.</source>
+        <translation>Il nome cartella deve avere massimo 12 caratteri.</translation>
     </message>
     <message>
-        <source>Impossibile creare la cartella %1: %2</source>
-        <translation type="unfinished"></translation>
+        <source>Unable to create folder %1: %2</source>
+        <translation>Impossibile creare la cartella %1: %2</translation>
     </message>
     <message>
-        <source>Impossibile creare la cartella.</source>
-        <translation type="unfinished"></translation>
+        <source>Unable to create folder.</source>
+        <translation>Impossibile creare la cartella.</translation>
     </message>
     <message>
-        <source>Creazione cartella in corso...</source>
-        <translation type="unfinished"></translation>
+        <source>Creating folder...</source>
+        <translation>Creazione cartella in corso...</translation>
     </message>
     <message>
-        <source>Secondo tentativo di creazione in corso...</source>
-        <translation type="unfinished"></translation>
+        <source>Retrying creation...</source>
+        <translation>Secondo tentativo di creazione in corso...</translation>
     </message>
     <message>
-        <source>Errore creazione cartella: %1</source>
-        <translation type="unfinished"></translation>
+        <source>Error creating folder: %1</source>
+        <translation>Errore creazione cartella: %1</translation>
     </message>
     <message>
-        <source>Errore interno durante la creazione cartella.</source>
-        <translation type="unfinished"></translation>
+        <source>Internal error while creating folder.</source>
+        <translation>Errore interno durante la creazione cartella.</translation>
     </message>
 </context>
 <context>
@@ -246,11 +362,6 @@
         <translation>Telefono</translation>
     </message>
     <message>
-        <source>Invite Link</source>
-        <comment>header</comment>
-        <translation>Link d&apos;invito</translation>
-    </message>
-    <message>
         <source>The Invite Link has been copied to the clipboard.</source>
         <translation>Il link d&apos;invito è stato copiato</translation>
     </message>
@@ -280,22 +391,306 @@
     </message>
     <message>
         <source>ID has been copied to the clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>ID copiato negli appunti.</translation>
     </message>
     <message>
         <source>Join Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Richieste di iscrizione</translation>
     </message>
     <message>
         <source>Unable to start the call.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile avviare la chiamata.</translation>
+    </message>
+    <message>
+        <source>Public</source>
+        <translation>Pubblico</translation>
+    </message>
+    <message>
+        <source>Private</source>
+        <translation>Privato</translation>
+    </message>
+    <message>
+        <source>Visible</source>
+        <translation>Visibile</translation>
+    </message>
+    <message>
+        <source>Hidden</source>
+        <translation>Nascosto</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Off</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Attivo</translation>
+    </message>
+    <message>
+        <source>%1 selected</source>
+        <translation>%1 selezionati</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Nessuno</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>Tutte</translation>
+    </message>
+    <message>
+        <source>Added</source>
+        <translation>Aggiunto</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Aggiungi</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>No</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Predefinito</translation>
+    </message>
+    <message>
+        <source>Available</source>
+        <translation>Disponibile</translation>
+    </message>
+    <message>
+        <source>Unavailable</source>
+        <translation>Non disponibile</translation>
+    </message>
+    <message>
+        <source>%1 is not available yet.</source>
+        <translation>%1 non è ancora disponibile.</translation>
+    </message>
+    <message>
+        <source>No invite link available yet.</source>
+        <translation>Nessun link di invito disponibile.</translation>
+    </message>
+    <message>
+        <source>Deleting channel</source>
+        <translation>Eliminazione canale</translation>
+    </message>
+    <message>
+        <source>Channel Settings</source>
+        <translation>Impostazioni del canale</translation>
+    </message>
+    <message>
+        <source>Group Settings</source>
+        <translation>Impostazioni del gruppo</translation>
+    </message>
+    <message>
+        <source>Channel Type</source>
+        <translation>Tipo di canale</translation>
+    </message>
+    <message>
+        <source>Group Type</source>
+        <translation>Tipo di gruppo</translation>
+    </message>
+    <message>
+        <source>Chat History</source>
+        <translation>Cronologia chat</translation>
+    </message>
+    <message>
+        <source>Only administrators can change chat history visibility.</source>
+        <translation>Solo gli amministratori possono modificare la visibilità della cronologia chat.</translation>
+    </message>
+    <message>
+        <source>Topics</source>
+        <translation>Topic</translation>
+    </message>
+    <message>
+        <source>Discussion</source>
+        <translation>Discussione</translation>
+    </message>
+    <message>
+        <source>Direct Messages</source>
+        <translation>Messaggi diretti</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Aspetto</translation>
+    </message>
+    <message>
+        <source>Auto-Translate Messages</source>
+        <translation>Traduci automaticamente i messaggi</translation>
+    </message>
+    <message>
+        <source>Reactions</source>
+        <translation>Reazioni</translation>
+    </message>
+    <message>
+        <source>Permissions</source>
+        <translation>Permessi</translation>
+    </message>
+    <message>
+        <source>Invite Link</source>
+        <translation>Link d&apos;invito</translation>
+    </message>
+    <message>
+        <source>Administrators</source>
+        <translation>Amministratori</translation>
+    </message>
+    <message>
+        <source>Subscribers</source>
+        <translation>Iscritti</translation>
+    </message>
+    <message>
+        <source>Members</source>
+        <translation>Membri</translation>
+    </message>
+    <message>
+        <source>Removed Users</source>
+        <translation>Utenti rimossi</translation>
+    </message>
+    <message>
+        <source>Statistics</source>
+        <translation>Statistiche</translation>
+    </message>
+    <message>
+        <source>Statistics are unavailable for this chat.</source>
+        <translation>Le statistiche non sono disponibili per questa chat.</translation>
+    </message>
+    <message>
+        <source>Recent Actions</source>
+        <translation>Azioni recenti</translation>
+    </message>
+    <message>
+        <source>Affiliate Programs</source>
+        <translation>Programmi di affiliazione</translation>
+    </message>
+    <message>
+        <source>Delete channel</source>
+        <translation>Elimina canale</translation>
+    </message>
+    <message>
+        <source>Delete and leave group</source>
+        <translation>Elimina e lascia il gruppo</translation>
+    </message>
+    <message>
+        <source>Reactions can only be changed in supergroups and channels.</source>
+        <translation>Le reazioni si possono modificare solo nei supergruppi e nei canali.</translation>
+    </message>
+    <message>
+        <source>Only administrators can change reactions.</source>
+        <translation>Solo gli amministratori possono modificare le reazioni.</translation>
+    </message>
+    <message>
+        <source>Topics enabled.</source>
+        <translation>Topic abilitati.</translation>
+    </message>
+    <message>
+        <source>Topics disabled.</source>
+        <translation>Topic disabilitati.</translation>
+    </message>
+    <message>
+        <source>All reactions enabled.</source>
+        <translation>Tutte le reazioni abilitate.</translation>
+    </message>
+    <message>
+        <source>Reactions disabled.</source>
+        <translation>Reazioni disabilitate.</translation>
+    </message>
+    <message>
+        <source>Basic groups are private.</source>
+        <translation>I gruppi base sono privati.</translation>
+    </message>
+    <message>
+        <source>Only administrators can change the group type.</source>
+        <translation>Solo gli amministratori possono modificare il tipo di gruppo.</translation>
+    </message>
+    <message>
+        <source>Add Members</source>
+        <translation>Aggiungi membri</translation>
+    </message>
+    <message>
+        <source>Only the group owner can change topics.</source>
+        <translation>Solo il proprietario del gruppo può modificare i topic.</translation>
+    </message>
+    <message>
+        <source>Chat history is now visible.</source>
+        <translation>La cronologia chat ora è visibile.</translation>
+    </message>
+    <message>
+        <source>Chat history is now hidden.</source>
+        <translation>La cronologia chat ora è nascosta.</translation>
+    </message>
+    <message>
+        <source>Message history can&apos;t be hidden while topics are enabled.</source>
+        <translation>La cronologia dei messaggi non può essere nascosta con i topic abilitati.</translation>
+    </message>
+    <message>
+        <source>Manage Topics</source>
+        <translation>Gestisci topic</translation>
+    </message>
+    <message>
+        <source>Only administrators can manage topics.</source>
+        <translation>Solo gli amministratori possono gestire i topic.</translation>
+    </message>
+    <message>
+        <source>Only administrators can change the group picture.</source>
+        <translation>Solo gli amministratori possono modificare l&apos;immagine del gruppo.</translation>
+    </message>
+    <message>
+        <source>Uploading group picture...</source>
+        <translation>Caricamento immagine del gruppo...</translation>
+    </message>
+    <message>
+        <source>Group picture updated.</source>
+        <translation>Immagine del gruppo aggiornata.</translation>
+    </message>
+    <message>
+        <source>Channel Picture</source>
+        <translation>Immagine del canale</translation>
+    </message>
+    <message>
+        <source>Group Picture</source>
+        <translation>Immagine del gruppo</translation>
+    </message>
+    <message>
+        <source>Only the channel owner can change the discussion group.</source>
+        <translation>Solo il proprietario del canale può cambiare il gruppo di discussione.</translation>
+    </message>
+    <message>
+        <source>Only administrators can change the appearance.</source>
+        <translation>Solo gli amministratori possono modificare l&apos;aspetto.</translation>
+    </message>
+    <message>
+        <source>Convert to supergroup</source>
+        <translation>Converti in supergruppo</translation>
+    </message>
+    <message>
+        <source>Converting to supergroup</source>
+        <translation>Conversione in supergruppo</translation>
+    </message>
+    <message>
+        <source>Conversion in progress…</source>
+        <translation>Conversione in corso…</translation>
+    </message>
+    <message>
+        <source>User has been blocked.</source>
+        <translation>Utente bloccato.</translation>
+    </message>
+    <message>
+        <source>User has been unblocked.</source>
+        <translation>Utente sbloccato.</translation>
+    </message>
+    <message>
+        <source>Unblock User</source>
+        <translation>Sblocca utente</translation>
+    </message>
+    <message>
+        <source>Block User</source>
+        <translation>Blocca utente</translation>
     </message>
 </context>
 <context>
     <name>ChatInformationTabItemFilteredMessages</name>
     <message>
-        <source>Impossibile caricare i contenuti.</source>
-        <translation type="unfinished"></translation>
+        <source>Unable to load content.</source>
+        <translation>Impossibile caricare i contenuti.</translation>
     </message>
 </context>
 <context>
@@ -325,6 +720,30 @@
         <source>Channel members are anonymous.</source>
         <translation>I membri del canale sono anonimi</translation>
     </message>
+    <message>
+        <source>Processing…</source>
+        <translation>Elaborazione…</translation>
+    </message>
+    <message>
+        <source>Promote to admin</source>
+        <translation>Promuovi ad amministratore</translation>
+    </message>
+    <message>
+        <source>Remove from group</source>
+        <translation>Rimuovi dal gruppo</translation>
+    </message>
+    <message>
+        <source>Removing user</source>
+        <translation>Rimozione utente</translation>
+    </message>
+    <message>
+        <source>Member removed from group.</source>
+        <translation>Membro rimosso dal gruppo.</translation>
+    </message>
+    <message>
+        <source>Member promoted to administrator.</source>
+        <translation>Membro promosso ad amministratore.</translation>
+    </message>
 </context>
 <context>
     <name>ChatInformationTabView</name>
@@ -344,92 +763,92 @@
         <translation>Impostazioni</translation>
     </message>
     <message>
-        <source>Chiama</source>
+        <source>Call</source>
         <comment>Button: start voice call</comment>
-        <translation type="unfinished"></translation>
+        <translation>Chiama</translation>
     </message>
     <message>
         <source>Voice calls are not available in this build yet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le chiamate vocali non sono ancora disponibili in questa versione.</translation>
     </message>
     <message>
         <source>Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Media</translation>
     </message>
     <message>
-        <source>Nessun media disponibile.</source>
-        <translation type="unfinished"></translation>
+        <source>No media available.</source>
+        <translation>Nessun media disponibile.</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio</translation>
     </message>
     <message>
-        <source>Documenti</source>
-        <translation type="unfinished"></translation>
+        <source>Documents</source>
+        <translation>Documenti</translation>
     </message>
     <message>
-        <source>Nessun documento disponibile.</source>
-        <translation type="unfinished"></translation>
+        <source>No documents available.</source>
+        <translation>Nessun documento disponibile.</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Link</translation>
     </message>
     <message>
-        <source>Nessun link disponibile.</source>
-        <translation type="unfinished"></translation>
+        <source>No links available.</source>
+        <translation>Nessun link disponibile.</translation>
     </message>
     <message>
-        <source>Nessun audio disponibile.</source>
-        <translation type="unfinished"></translation>
+        <source>No audio available.</source>
+        <translation>Nessun audio disponibile.</translation>
     </message>
 </context>
 <context>
     <name>ChatJoinRequestsPage</name>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiorna</translation>
     </message>
     <message>
         <source>Join Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Richieste di iscrizione</translation>
     </message>
     <message>
         <source>Search requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca richieste</translation>
     </message>
     <message>
         <source>There are no pending join requests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non ci sono richieste di iscrizione in sospeso.</translation>
     </message>
     <message>
         <source>No bio</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna bio</translation>
     </message>
     <message>
         <source>Requested %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Richiesto %1</translation>
     </message>
     <message>
         <source>Approving…</source>
-        <translation type="unfinished"></translation>
+        <translation>Approvazione in corso…</translation>
     </message>
     <message>
         <source>Approve</source>
-        <translation type="unfinished"></translation>
+        <translation>Approva</translation>
     </message>
     <message>
         <source>Rejecting…</source>
-        <translation type="unfinished"></translation>
+        <translation>Rifiuto in corso…</translation>
     </message>
     <message>
         <source>Reject</source>
-        <translation type="unfinished"></translation>
+        <translation>Rifiuta</translation>
     </message>
     <message>
         <source>Load more</source>
-        <translation type="unfinished"></translation>
+        <translation>Carica altri</translation>
     </message>
 </context>
 <context>
@@ -485,6 +904,14 @@
     <message>
         <source>Mute chat</source>
         <translation>Silenzia chat</translation>
+    </message>
+    <message>
+        <source>Delete Chat</source>
+        <translation>Elimina Chat</translation>
+    </message>
+    <message>
+        <source>Deleting chat</source>
+        <translation>Eliminazione chat</translation>
     </message>
 </context>
 <context>
@@ -651,43 +1078,43 @@
     </message>
     <message>
         <source>Unknown address</source>
-        <translation type="unfinished"></translation>
+        <translation>Indirizzo sconosciuto</translation>
     </message>
     <message>
         <source>Accuracy: %1m</source>
-        <translation type="unfinished"></translation>
+        <translation>Precisione: %1m</translation>
     </message>
     <message>
         <source>Sponsored Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Messaggio sponsorizzato</translation>
     </message>
     <message>
         <source>Deleting chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminazione chat</translation>
     </message>
     <message>
         <source>Delete Chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina Chat</translation>
     </message>
     <message>
         <source>Deleted User</source>
-        <translation type="unfinished"></translation>
+        <translation>Utente eliminato</translation>
     </message>
     <message>
         <source>Double-tap on a message to choose a reaction</source>
-        <translation type="unfinished"></translation>
+        <translation>Tocca due volte un messaggio per scegliere una reazione</translation>
     </message>
     <message>
-        <source>Inoltra messaggio</source>
-        <translation type="unfinished"></translation>
+        <source>Forward message</source>
+        <translation>Inoltra messaggio</translation>
     </message>
     <message>
-        <source>Cancella messaggio</source>
-        <translation type="unfinished"></translation>
+        <source>Delete message</source>
+        <translation>Cancella messaggio</translation>
     </message>
     <message>
-        <source>Il topic è chiuso</source>
-        <translation type="unfinished"></translation>
+        <source>Topic is closed</source>
+        <translation>Il topic è chiuso</translation>
     </message>
     <message>
         <source>Copy Selected Text</source>
@@ -699,26 +1126,173 @@
     </message>
     <message>
         <source>Premium set</source>
-        <translation type="unfinished"></translation>
+        <translation>Set premium</translation>
     </message>
     <message>
         <source>No premium emoji set available</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun set di emoji premium disponibile</translation>
     </message>
     <message>
         <source>Only the first shared file has been prepared.</source>
-        <translation type="unfinished"></translation>
+        <translation>È stato preparato solo il primo file condiviso.</translation>
     </message>
     <message>
         <source>Unable to send this sticker.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile inviare questo adesivo.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln join requests</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln richiesta di iscrizione</numerusform>
+            <numerusform>%Ln richieste di iscrizione</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Telegram allows up to %1 images per album.</source>
+        <translation>Telegram consente fino a %1 immagini per album.</translation>
+    </message>
+</context>
+<context>
+    <name>ChatRecentActionsPage</name>
+    <message>
+        <source>Unknown user</source>
+        <translation>Utente sconosciuto</translation>
+    </message>
+    <message>
+        <source>edited a message</source>
+        <translation>ha modificato un messaggio</translation>
+    </message>
+    <message>
+        <source>deleted a message</source>
+        <translation>ha eliminato un messaggio</translation>
+    </message>
+    <message>
+        <source>pinned a message</source>
+        <translation>ha fissato un messaggio</translation>
+    </message>
+    <message>
+        <source>joined the chat</source>
+        <translation>è entrato nella chat</translation>
+    </message>
+    <message>
+        <source>joined via invite link</source>
+        <translation>è entrato tramite link di invito</translation>
+    </message>
+    <message>
+        <source>left the chat</source>
+        <translation>ha lasciato la chat</translation>
+    </message>
+    <message>
+        <source>invited a member</source>
+        <translation>ha invitato un membro</translation>
+    </message>
+    <message>
+        <source>updated administrator rights</source>
+        <translation>ha aggiornato i diritti dell&apos;amministratore</translation>
+    </message>
+    <message>
+        <source>updated member permissions</source>
+        <translation>ha aggiornato i permessi dei membri</translation>
+    </message>
+    <message>
+        <source>changed the chat title</source>
+        <translation>ha modificato il titolo della chat</translation>
+    </message>
+    <message>
+        <source>changed the description</source>
+        <translation>ha modificato la descrizione</translation>
+    </message>
+    <message>
+        <source>changed the public username</source>
+        <translation>ha modificato il nome utente pubblico</translation>
+    </message>
+    <message>
+        <source>changed the photo</source>
+        <translation>ha modificato la foto</translation>
+    </message>
+    <message>
+        <source>changed invite link permissions</source>
+        <translation>ha modificato i permessi del link di invito</translation>
+    </message>
+    <message>
+        <source>changed message signing</source>
+        <translation>ha modificato la firma dei messaggi</translation>
+    </message>
+    <message>
+        <source>changed sticker set</source>
+        <translation>ha modificato il set di adesivi</translation>
+    </message>
+    <message>
+        <source>changed linked chat</source>
+        <translation>ha modificato la chat collegata</translation>
+    </message>
+    <message>
+        <source>changed slow mode</source>
+        <translation>ha modificato la modalità lenta</translation>
+    </message>
+    <message>
+        <source>started a video chat</source>
+        <translation>ha avviato una videochiamata</translation>
+    </message>
+    <message>
+        <source>ended the video chat</source>
+        <translation>ha terminato la videochiamata</translation>
+    </message>
+    <message>
+        <source>changed video chat permissions</source>
+        <translation>ha modificato i permessi della videochiamata</translation>
+    </message>
+    <message>
+        <source>edited an invite link</source>
+        <translation>ha modificato un link di invito</translation>
+    </message>
+    <message>
+        <source>revoked an invite link</source>
+        <translation>ha revocato un link di invito</translation>
+    </message>
+    <message>
+        <source>deleted an invite link</source>
+        <translation>ha eliminato un link di invito</translation>
+    </message>
+    <message>
+        <source>performed an action</source>
+        <translation>ha eseguito un&apos;azione</translation>
+    </message>
+    <message>
+        <source>Description cleared</source>
+        <translation>Descrizione cancellata</translation>
+    </message>
+    <message>
+        <source>Username removed</source>
+        <translation>Nome utente rimosso</translation>
+    </message>
+    <message>
+        <source>Slow mode: %1s</source>
+        <translation>Modalità lenta: %1s</translation>
+    </message>
+    <message>
+        <source>Slow mode disabled</source>
+        <translation>Modalità lenta disabilitata</translation>
+    </message>
+    <message>
+        <source>Linked chat removed</source>
+        <translation>Chat collegata rimossa</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation>Aggiorna</translation>
+    </message>
+    <message>
+        <source>Recent Actions</source>
+        <translation>Azioni recenti</translation>
+    </message>
+    <message>
+        <source>No recent actions found.</source>
+        <translation>Nessuna azione recente trovata.</translation>
+    </message>
+    <message>
+        <source>Load more</source>
+        <translation>Carica altri</translation>
     </message>
 </context>
 <context>
@@ -731,12 +1305,16 @@
         <source>You don&apos;t have any chats yet.</source>
         <translation>Nessuna chat presente</translation>
     </message>
+    <message>
+        <source>Search in contacts...</source>
+        <translation>Cerca nei contatti...</translation>
+    </message>
 </context>
 <context>
     <name>ContactSync</name>
     <message>
         <source>Could not synchronize your contacts with Telegram.</source>
-        <translation type="unfinished">Sincronizzazione contatti con Telegram non riuscita</translation>
+        <translation>Sincronizzazione contatti con Telegram non riuscita</translation>
     </message>
 </context>
 <context>
@@ -832,6 +1410,28 @@
         <comment>member permission</comment>
         <translation>I nuovi membri possono vedere i messaggi precedenti</translation>
     </message>
+    <message>
+        <source>Send Polls</source>
+        <comment>member permission</comment>
+        <translation>Invia sondaggi</translation>
+    </message>
+    <message>
+        <source>Create Topics</source>
+        <comment>member permission</comment>
+        <translation>Crea topic</translation>
+    </message>
+    <message>
+        <source>Message history can&apos;t be hidden while topics are enabled.</source>
+        <translation>La cronologia dei messaggi non può essere nascosta con i topic abilitati.</translation>
+    </message>
+    <message>
+        <source>Group permissions updated.</source>
+        <translation>Permessi del gruppo aggiornati.</translation>
+    </message>
+    <message>
+        <source>Some permission changes were rejected by Telegram.</source>
+        <translation>Alcune modifiche ai permessi sono state rifiutate da Telegram.</translation>
+    </message>
 </context>
 <context>
     <name>EditSuperGroupSlowModeColumn</name>
@@ -852,23 +1452,123 @@
     <name>ForumTopicsPage</name>
     <message>
         <source>Topics</source>
-        <translation type="unfinished"></translation>
+        <translation>Topic</translation>
     </message>
     <message>
         <source>Loading topics...</source>
-        <translation type="unfinished"></translation>
+        <translation>Caricamento topic...</translation>
     </message>
     <message>
         <source>No topics found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun topic trovato</translation>
     </message>
     <message>
         <source>This group has no topics yet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Questo gruppo non ha ancora topic.</translation>
     </message>
     <message>
         <source>You</source>
-        <translation type="unfinished">Tu</translation>
+        <translation>Tu</translation>
+    </message>
+    <message>
+        <source>Only administrators can manage topics.</source>
+        <translation>Solo gli amministratori possono gestire i topic.</translation>
+    </message>
+    <message>
+        <source>Topic name must be between 1 and 128 characters.</source>
+        <translation>Il nome del topic deve avere da 1 a 128 caratteri.</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation>Aggiorna</translation>
+    </message>
+    <message>
+        <source>Create Topic</source>
+        <translation>Crea topic</translation>
+    </message>
+    <message>
+        <source>Disable Topics</source>
+        <translation>Disabilita topic</translation>
+    </message>
+    <message>
+        <source>Topic created.</source>
+        <translation>Topic creato.</translation>
+    </message>
+    <message>
+        <source>Topic renamed.</source>
+        <translation>Topic rinominato.</translation>
+    </message>
+    <message>
+        <source>Topic deleted.</source>
+        <translation>Topic eliminato.</translation>
+    </message>
+    <message>
+        <source>Topic closed.</source>
+        <translation>Topic chiuso.</translation>
+    </message>
+    <message>
+        <source>Topic reopened.</source>
+        <translation>Topic riaperto.</translation>
+    </message>
+    <message>
+        <source>Topics disabled.</source>
+        <translation>Topic disabilitati.</translation>
+    </message>
+    <message>
+        <source>Topic name</source>
+        <translation>Nome topic</translation>
+    </message>
+    <message>
+        <source>New topic name</source>
+        <translation>Nuovo nome topic</translation>
+    </message>
+    <message>
+        <source>Enter topic name</source>
+        <translation>Inserisci nome topic</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annulla</translation>
+    </message>
+    <message>
+        <source>Saving…</source>
+        <translation>Salvataggio…</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Crea</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Rinomina</translation>
+    </message>
+    <message>
+        <source>Rename topic</source>
+        <translation>Rinomina topic</translation>
+    </message>
+    <message>
+        <source>Reopen topic</source>
+        <translation>Riapri topic</translation>
+    </message>
+    <message>
+        <source>Close topic</source>
+        <translation>Chiudi topic</translation>
+    </message>
+    <message>
+        <source>Delete topic</source>
+        <translation>Elimina topic</translation>
+    </message>
+    <message>
+        <source>Deleting topic</source>
+        <translation>Eliminazione topic</translation>
+    </message>
+    <message>
+        <source>Closed</source>
+        <translation>Chiuso</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have permission to create topics.</source>
+        <translation>Non hai il permesso di creare topic.</translation>
     </message>
 </context>
 <context>
@@ -880,6 +1580,81 @@
             <numerusform>Inoltra %Ln messaggio</numerusform>
             <numerusform>Inoltra %Ln messaggi</numerusform>
         </translation>
+    </message>
+</context>
+<context>
+    <name>GroupTypePage</name>
+    <message>
+        <source>Username must be 5-32 characters.</source>
+        <translation>Il nome utente deve avere da 5 a 32 caratteri.</translation>
+    </message>
+    <message>
+        <source>Username can only use letters, numbers and underscores.</source>
+        <translation>Il nome utente può contenere solo lettere, numeri e underscore.</translation>
+    </message>
+    <message>
+        <source>Saving…</source>
+        <translation>Salvataggio…</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Salva</translation>
+    </message>
+    <message>
+        <source>Channel Type</source>
+        <translation>Tipo di canale</translation>
+    </message>
+    <message>
+        <source>Group Type</source>
+        <translation>Tipo di gruppo</translation>
+    </message>
+    <message>
+        <source>Public Channel</source>
+        <translation>Canale pubblico</translation>
+    </message>
+    <message>
+        <source>Public Group</source>
+        <translation>Gruppo pubblico</translation>
+    </message>
+    <message>
+        <source>Public chats can be found via username.</source>
+        <translation>Le chat pubbliche si trovano tramite nome utente.</translation>
+    </message>
+    <message>
+        <source>Private chats can only be joined through invite links.</source>
+        <translation>Le chat private sono accessibili solo tramite link di invito.</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Nome utente</translation>
+    </message>
+    <message>
+        <source>Set public username</source>
+        <translation>Imposta nome utente pubblico</translation>
+    </message>
+    <message>
+        <source>Use 5-32 letters, numbers or underscores.</source>
+        <translation>Usa da 5 a 32 lettere, numeri o underscore.</translation>
+    </message>
+    <message>
+        <source>Approve new members</source>
+        <translation>Approva i nuovi membri</translation>
+    </message>
+    <message>
+        <source>New members must be approved by an administrator.</source>
+        <translation>I nuovi iscritti devono essere approvati da un amministratore.</translation>
+    </message>
+    <message>
+        <source>Forbid content saving</source>
+        <translation>Vieta salvataggio contenuti</translation>
+    </message>
+    <message>
+        <source>Prevents forwarding, copying and saving of chat contents.</source>
+        <translation>Impedisce inoltro, copia e salvataggio dei contenuti della chat.</translation>
+    </message>
+    <message>
+        <source>Options saved</source>
+        <translation>Opzioni salvate</translation>
     </message>
 </context>
 <context>
@@ -1014,52 +1789,71 @@
         <translation>Copia messaggio nella clipboard</translation>
     </message>
     <message>
-        <source>Inoltra messaggio</source>
-        <translation type="unfinished"></translation>
+        <source>Forward message</source>
+        <translation>Inoltra messaggio</translation>
     </message>
     <message>
-        <source>Cancella messaggio</source>
-        <translation type="unfinished"></translation>
+        <source>Delete message</source>
+        <translation>Cancella messaggio</translation>
     </message>
     <message>
-        <source>Elimina tutti i messaggi di %1</source>
-        <translation type="unfinished"></translation>
+        <source>Delete all messages from %1</source>
+        <translation>Elimina tutti i messaggi di %1</translation>
     </message>
     <message>
-        <source>Elimina tutti i messaggi dell&apos;utente</source>
-        <translation type="unfinished"></translation>
+        <source>Delete all messages from this user</source>
+        <translation>Elimina tutti i messaggi dell&apos;utente</translation>
     </message>
     <message>
-        <source>Banna %1</source>
-        <translation type="unfinished"></translation>
+        <source>Ban %1</source>
+        <translation>Banna %1</translation>
     </message>
     <message>
-        <source>Banna utente</source>
-        <translation type="unfinished"></translation>
+        <source>Ban user</source>
+        <translation>Banna utente</translation>
     </message>
     <message>
-        <source>Segnala come spam</source>
-        <translation type="unfinished"></translation>
+        <source>Report as spam</source>
+        <translation>Segnala come spam</translation>
     </message>
     <message>
-        <source>Eliminazione messaggi avviata</source>
-        <translation type="unfinished"></translation>
+        <source>Deletion of messages started</source>
+        <translation>Eliminazione messaggi avviata</translation>
     </message>
     <message>
-        <source>Utente bannato</source>
-        <translation type="unfinished"></translation>
+        <source>User banned</source>
+        <translation>Utente bannato</translation>
     </message>
     <message>
-        <source>Segnalazione inviata</source>
-        <translation type="unfinished"></translation>
+        <source>Report submitted</source>
+        <translation>Segnalazione inviata</translation>
     </message>
     <message>
         <source>Unpin Message</source>
-        <translation type="unfinished">Togli messaggio in evidenza</translation>
+        <translation>Togli messaggio in evidenza</translation>
     </message>
     <message>
         <source>Pin Message</source>
-        <translation type="unfinished">Metti messaggio in evidenza</translation>
+        <translation>Metti messaggio in evidenza</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln messages of album deleted</source>
+        <translation>
+            <numerusform>%Ln messaggio dell&apos;album eliminato</numerusform>
+            <numerusform>%Ln messaggi dell&apos;album eliminati</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Delete album</source>
+        <translation>Elimina album</translation>
+    </message>
+    <message>
+        <source>Hide spoiler</source>
+        <translation>Nascondi spoiler</translation>
+    </message>
+    <message>
+        <source>Reveal spoiler</source>
+        <translation>Rivela spoiler</translation>
     </message>
 </context>
 <context>
@@ -1189,7 +1983,7 @@
     </message>
     <message>
         <source>No contacts found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun contatto trovato.</translation>
     </message>
 </context>
 <context>
@@ -1204,6 +1998,18 @@
 </context>
 <context>
     <name>OverviewPage</name>
+    <message>
+        <source>Debug</source>
+        <translation>Debug</translation>
+    </message>
+    <message>
+        <source>New Group</source>
+        <translation>Nuovo Gruppo</translation>
+    </message>
+    <message>
+        <source>New Channel</source>
+        <translation>Nuovo Canale</translation>
+    </message>
     <message>
         <source>About RooTelegram</source>
         <translation>Informazioni su RooTelegram</translation>
@@ -1242,15 +2048,11 @@
     </message>
     <message>
         <source>New Chat</source>
-        <translation>Nuova chat</translation>
-    </message>
-    <message>
-        <source>Filter your chats...</source>
-        <translation>Filtra le chat...</translation>
+        <translation>Nuova Chat</translation>
     </message>
     <message>
         <source>Search Chats</source>
-        <translation>Ricerca chat</translation>
+        <translation>Ricerca Chat</translation>
     </message>
     <message>
         <source>Download of %1 successful.</source>
@@ -1278,23 +2080,35 @@
     </message>
     <message>
         <source>Unable to open link.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile aprire il link.</translation>
     </message>
     <message>
-        <source>Tutte</source>
-        <translation type="unfinished"></translation>
+        <source>All</source>
+        <translation>Tutte</translation>
     </message>
     <message>
-        <source>Tutte le chat sono state segnate come lette.</source>
-        <translation type="unfinished"></translation>
+        <source>All chats marked as read.</source>
+        <translation>Tutte le chat sono state segnate come lette.</translation>
     </message>
     <message>
-        <source>Segna tutto come già letto</source>
-        <translation type="unfinished"></translation>
+        <source>Mark all as read</source>
+        <translation>Segna tutto come già letto</translation>
     </message>
     <message>
-        <source>Modifica cartelle</source>
-        <translation type="unfinished"></translation>
+        <source>Edit folders</source>
+        <translation>Modifica cartelle</translation>
+    </message>
+    <message>
+        <source>Search chat...</source>
+        <translation>Cerca la chat...</translation>
+    </message>
+    <message>
+        <source>Blocklist</source>
+        <translation>Lista bloccati</translation>
+    </message>
+    <message>
+        <source>Reorder Pinned Chats</source>
+        <translation>Riordina Chat Pinnate</translation>
     </message>
 </context>
 <context>
@@ -1465,6 +2279,33 @@
             <numerusform>%Ln voto incluso il tuo</numerusform>
             <numerusform>%Ln voti incluso il tuo</numerusform>
         </translation>
+    </message>
+</context>
+<context>
+    <name>ReorderPinnedChatsPage</name>
+    <message>
+        <source>Unable to update pinned chat order.</source>
+        <translation>Impossibile aggiornare l&apos;ordine delle chat pinnate.</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation>Aggiorna</translation>
+    </message>
+    <message>
+        <source>Reorder Pinned Chats</source>
+        <translation>Riordina Chat Pinnate</translation>
+    </message>
+    <message>
+        <source>No pinned chats.</source>
+        <translation>Nessuna chat pinnata.</translation>
+    </message>
+    <message>
+        <source>Pin a chat from home to reorder it here.</source>
+        <translation>Pinna una chat dalla home per riordinarla qui.</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Sconosciuta</translation>
     </message>
 </context>
 <context>
@@ -1757,20 +2598,20 @@
     <message>
         <source>cancelled a call</source>
         <comment>myself</comment>
-        <translation type="unfinished"></translation>
+        <translation>hai annullato una chiamata</translation>
     </message>
     <message>
         <source>missed a call</source>
-        <translation type="unfinished"></translation>
+        <translation>ha perso una chiamata</translation>
     </message>
     <message>
         <source>started a call</source>
         <comment>myself</comment>
-        <translation type="unfinished"></translation>
+        <translation>hai avviato una chiamata</translation>
     </message>
     <message>
         <source>started a call</source>
-        <translation type="unfinished"></translation>
+        <translation>ha avviato una chiamata</translation>
     </message>
 </context>
 <context>
@@ -1823,6 +2664,45 @@
     </message>
 </context>
 <context>
+    <name>SelectDiscussionGroupPage</name>
+    <message>
+        <source>Discussion group updated</source>
+        <translation>Gruppo di discussione aggiornato</translation>
+    </message>
+    <message>
+        <source>Discussion group removed</source>
+        <translation>Gruppo di discussione rimosso</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Errore: %1</translation>
+    </message>
+    <message>
+        <source>Discussion</source>
+        <translation>Discussione</translation>
+    </message>
+    <message>
+        <source>Remove discussion group</source>
+        <translation>Rimuovi gruppo di discussione</translation>
+    </message>
+    <message>
+        <source>Choose a group that will host discussion of channel posts.</source>
+        <translation>Scegli un gruppo che ospiterà la discussione dei post del canale.</translation>
+    </message>
+    <message>
+        <source>No suitable groups</source>
+        <translation>Nessun gruppo adatto</translation>
+    </message>
+    <message>
+        <source>Create a public supergroup or convert an existing one to use as discussion.</source>
+        <translation>Crea un supergruppo pubblico o convertine uno esistente da usare come discussione.</translation>
+    </message>
+    <message>
+        <source>Reload</source>
+        <translation>Ricarica</translation>
+    </message>
+</context>
+<context>
     <name>SettingsAppearance</name>
     <message>
         <source>Appearance</source>
@@ -1830,11 +2710,11 @@
     </message>
     <message>
         <source>Show stickers as emojis</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra gli adesivi come emoji</translation>
     </message>
     <message>
         <source>Only display emojis instead of the actual stickers</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra solo le emoji invece degli adesivi veri</translation>
     </message>
     <message>
         <source>Show stickers as images</source>
@@ -1865,11 +2745,11 @@
     </message>
     <message>
         <source>Focus text input on chat open</source>
-        <translation type="unfinished"></translation>
+        <translation>Metti a fuoco il campo di testo all&apos;apertura della chat</translation>
     </message>
     <message>
         <source>Focus the text input area when entering a chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Metti a fuoco l&apos;area di testo quando entri in una chat</translation>
     </message>
     <message>
         <source>Focus text input area after send</source>
@@ -1929,39 +2809,55 @@
     </message>
     <message>
         <source>Always append message preview to notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi sempre l&apos;anteprima del messaggio alle notifiche</translation>
     </message>
     <message>
         <source>In addition to showing the number of unread messages, the latest message will also be appended to notifications.</source>
-        <translation type="unfinished"></translation>
+        <translation>Oltre a mostrare il numero di messaggi non letti, l&apos;ultimo messaggio verrà aggiunto alle notifiche.</translation>
     </message>
     <message>
         <source>Highlight unread messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Evidenzia i messaggi non letti</translation>
     </message>
     <message>
         <source>Highlight Conversations with unread messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Evidenzia le conversazioni con messaggi non letti</translation>
+    </message>
+    <message>
+        <source>Cover: only private chats in unread count</source>
+        <translation>Cover: solo chat private nei conteggi non letti</translation>
+    </message>
+    <message>
+        <source>Exclude groups and channels from the unread message and chat counts shown on the cover preview</source>
+        <translation>Escludi gruppi e canali dal conteggio dei messaggi e delle chat non letti mostrati nell&apos;anteprima cover</translation>
     </message>
     <message>
         <source>Hide content in notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Nascondi i contenuti nelle notifiche</translation>
     </message>
     <message>
         <source>Go to quoted message</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai al messaggio citato</translation>
     </message>
     <message>
         <source>When tapping a quoted message, open it in chat instead of showing it in an overlay.</source>
-        <translation type="unfinished"></translation>
+        <translation>Quando tocchi un messaggio citato, aprilo nella chat invece di mostrarlo in sovraimpressione.</translation>
     </message>
     <message>
         <source>Run as daemon in background</source>
-        <translation type="unfinished"></translation>
+        <translation>Esegui come daemon in background</translation>
     </message>
     <message>
         <source>Keep RooTelegram running in background and allow DBus daemon startup. Restart the app after changing this setting.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mantieni RooTelegram in esecuzione in background e abilita l&apos;avvio del daemon DBus. Riavvia l&apos;app dopo aver modificato questa impostazione.</translation>
+    </message>
+    <message>
+        <source>Disable video preloading</source>
+        <translation>Disabilita precaricamento video</translation>
+    </message>
+    <message>
+        <source>Disables automatic video preloading to reduce RAM/GPU and mobile data usage. Photos are still downloaded automatically.</source>
+        <translation>Azzera il precaricamento automatico dei video per ridurre consumo RAM/GPU e dati mobili. Le foto restano scaricate automaticamente.</translation>
     </message>
 </context>
 <context>
@@ -2050,62 +2946,62 @@
     <name>SettingsSession</name>
     <message>
         <source>Sessions</source>
-        <translation type="unfinished"></translation>
+        <translation>Sessioni</translation>
     </message>
     <message>
         <source>Session was terminated</source>
-        <translation type="unfinished"></translation>
+        <translation>Sessione terminata</translation>
     </message>
     <message>
         <source>Terminating session</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminazione sessione</translation>
     </message>
     <message>
         <source>Terminate Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Termina sessione</translation>
     </message>
     <message>
         <source>This app</source>
-        <translation type="unfinished"></translation>
+        <translation>Questa app</translation>
     </message>
     <message>
         <source>Active since: %1, last online: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Attivo da: %1, ultimo accesso: %2</translation>
     </message>
     <message numerus="yes">
         <source>%1 day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1 giorno</numerusform>
+            <numerusform>%1 giorni</numerusform>
         </translation>
     </message>
     <message>
         <source>1 week</source>
-        <translation type="unfinished"></translation>
+        <translation>1 settimana</translation>
     </message>
     <message>
         <source>1 month</source>
-        <translation type="unfinished"></translation>
+        <translation>1 mese</translation>
     </message>
     <message>
         <source>3 months</source>
-        <translation type="unfinished"></translation>
+        <translation>3 mesi</translation>
     </message>
     <message>
         <source>6 months</source>
-        <translation type="unfinished"></translation>
+        <translation>6 mesi</translation>
     </message>
     <message>
         <source>1 year</source>
-        <translation type="unfinished"></translation>
+        <translation>1 anno</translation>
     </message>
     <message>
         <source>Session Timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>Timeout sessione</translation>
     </message>
     <message>
         <source>Inactive sessions will be terminated after this timeframe</source>
-        <translation type="unfinished"></translation>
+        <translation>Le sessioni inattive verranno terminate dopo questo periodo</translation>
     </message>
 </context>
 <context>
@@ -2190,26 +3086,26 @@
     </message>
     <message>
         <source>Contacts successfully synchronized with Telegram.</source>
-        <translation type="unfinished">Sincronizzazione contatti con Telegram completata</translation>
+        <translation>Sincronizzazione contatti con Telegram completata</translation>
     </message>
     <message>
         <source>Synchronize Contacts with Telegram</source>
-        <translation type="unfinished">Sincronizza contatti con Telegram</translation>
+        <translation>Sincronizza contatti con Telegram</translation>
     </message>
 </context>
 <context>
     <name>SponsoredMessage</name>
     <message>
         <source>Go to Channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai al canale</translation>
     </message>
     <message>
         <source>Go to Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai al messaggio</translation>
     </message>
     <message>
         <source>Start Bot</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvia il bot</translation>
     </message>
 </context>
 <context>
@@ -2236,6 +3132,61 @@
     <message>
         <source>Sticker set successfully removed!</source>
         <translation>Il set di sticker è stato rimosso!</translation>
+    </message>
+</context>
+<context>
+    <name>SupergroupMembersPage</name>
+    <message>
+        <source>Removed Users</source>
+        <translation>Utenti rimossi</translation>
+    </message>
+    <message>
+        <source>Administrators</source>
+        <translation>Amministratori</translation>
+    </message>
+    <message>
+        <source>Banned until %1</source>
+        <translation>Bannato fino al %1</translation>
+    </message>
+    <message>
+        <source>Banned</source>
+        <translation>Bannato</translation>
+    </message>
+    <message>
+        <source>Unable to load members for this chat.</source>
+        <translation>Impossibile caricare i membri di questa chat.</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation>Aggiorna</translation>
+    </message>
+    <message>
+        <source>There are no removed users.</source>
+        <translation>Non ci sono utenti rimossi.</translation>
+    </message>
+    <message>
+        <source>No administrators found.</source>
+        <translation>Nessun amministratore trovato.</translation>
+    </message>
+    <message>
+        <source>Joined %1</source>
+        <translation>Iscritto da %1</translation>
+    </message>
+    <message>
+        <source>Unbanning…</source>
+        <translation>Sbanno in corso…</translation>
+    </message>
+    <message>
+        <source>Unban</source>
+        <translation>Sbanna</translation>
+    </message>
+    <message>
+        <source>Load more</source>
+        <translation>Carica altri</translation>
+    </message>
+    <message>
+        <source>User has been unbanned.</source>
+        <translation>Utente sbannato.</translation>
     </message>
 </context>
 <context>
@@ -2709,27 +3660,59 @@
     <message>
         <source>cancelled a call</source>
         <comment>myself</comment>
-        <translation type="unfinished"></translation>
+        <translation>hai annullato una chiamata</translation>
     </message>
     <message>
         <source>missed a call</source>
-        <translation type="unfinished"></translation>
+        <translation>ha perso una chiamata</translation>
     </message>
     <message>
         <source>started a call</source>
         <comment>myself</comment>
-        <translation type="unfinished"></translation>
+        <translation>hai avviato una chiamata</translation>
     </message>
     <message>
         <source>started a call</source>
-        <translation type="unfinished"></translation>
+        <translation>ha avviato una chiamata</translation>
+    </message>
+    <message>
+        <source>created topic: %1</source>
+        <translation>ha creato il topic: %1</translation>
+    </message>
+    <message>
+        <source>renamed topic to: %1</source>
+        <translation>ha rinominato il topic in: %1</translation>
+    </message>
+    <message>
+        <source>edited topic icon</source>
+        <translation>ha modificato l&apos;icona del topic</translation>
+    </message>
+    <message>
+        <source>closed topic</source>
+        <translation>ha chiuso il topic</translation>
+    </message>
+    <message>
+        <source>reopened topic</source>
+        <translation>ha riaperto il topic</translation>
+    </message>
+    <message>
+        <source>edited topic</source>
+        <translation>ha modificato il topic</translation>
+    </message>
+    <message>
+        <source>hid topic</source>
+        <translation>ha nascosto il topic</translation>
+    </message>
+    <message>
+        <source>unhid topic</source>
+        <translation>ha riportato il topic visibile</translation>
     </message>
 </context>
 <context>
     <name>harbour-rootelegram</name>
     <message>
         <source>Send shared content</source>
-        <translation type="unfinished"></translation>
+        <translation>Invia il contenuto condiviso</translation>
     </message>
 </context>
 </TS>

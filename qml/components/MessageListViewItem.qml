@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,13 +44,14 @@ ListItem {
     readonly property bool isAnonymous: myMessage.sender_id["@type"] === "messageSenderChat"
     readonly property var userInformation: tdLibWrapper.getUserInformation(myMessage.sender_id.user_id)
     property QtObject precalculatedValues: ListView.view.precalculatedValues
-    readonly property color textColor: isOwnMessage ? Theme.highlightColor : Theme.primaryColor
-    readonly property int textAlign: isOwnMessage ? Text.AlignRight : Text.AlignLeft
     readonly property Page page: precalculatedValues.page
     readonly property bool isSelected: messageListItem.precalculatedValues.pageIsSelecting && page.selectedMessages.some(function(existingMessage) {
         return existingMessage.id === messageId
     });
     readonly property bool isOwnMessage: page.myUserId && myMessage.sender_id ? (page.myUserId === myMessage.sender_id.user_id) : false
+    readonly property bool useOutgoingLayout: isOwnMessage && !page.isChannel
+    readonly property color textColor: useOutgoingLayout ? Theme.highlightColor : Theme.primaryColor
+    readonly property int textAlign: useOutgoingLayout ? Text.AlignRight : Text.AlignLeft
     readonly property bool senderIsUser: myMessage.sender_id && myMessage.sender_id["@type"] === "messageSenderUser"
     readonly property var senderUserId: senderIsUser ? myMessage.sender_id.user_id : 0
     readonly property var senderInformation: senderIsUser ? tdLibWrapper.getUserInformation(senderUserId) : ({})
@@ -105,7 +111,7 @@ ListItem {
         if (canDeleteAllFromSender) {
             items.push({
                 visible: true,
-                name: senderDisplayName ? qsTr("Elimina tutti i messaggi di %1").arg(senderDisplayName) : qsTr("Elimina tutti i messaggi dell'utente"),
+                name: senderDisplayName ? qsTr("Delete all messages from %1").arg(senderDisplayName) : qsTr("Delete all messages from this user"),
                 action: function() {
                     deleteAllMessagesFromSender()
                 }
@@ -114,7 +120,7 @@ ListItem {
         if (canBanSender) {
             items.push({
                 visible: true,
-                name: senderDisplayName ? qsTr("Banna %1").arg(senderDisplayName) : qsTr("Banna utente"),
+                name: senderDisplayName ? qsTr("Ban %1").arg(senderDisplayName) : qsTr("Ban user"),
                 action: function() {
                     banSender()
                 }
@@ -123,7 +129,7 @@ ListItem {
         if (canReportSenderAsSpam) {
             items.push({
                 visible: true,
-                name: qsTr("Segnala come spam"),
+                name: qsTr("Report as spam"),
                 action: function() {
                     reportSenderAsSpam()
                 }
@@ -155,6 +161,90 @@ ListItem {
     signal forwardMessage()
     signal quoteSelectedText(string selectedText)
 
+    // Mappa "OFFSET-LENGTH" → true degli spoiler già rivelati in questo messaggio.
+    // Su Qt 5.6 (Sailfish) il binding analyzer NON traccia in modo affidabile le
+    // letture di una `property var` quando viene passata come argomento a una
+    // funzione JS — quindi affianchiamo un contatore int (`revealedSpoilersVersion`)
+    // che incrementiamo ad ogni modifica e che leggiamo esplicitamente dentro il
+    // binding del `text:` per forzarne la rivalutazione.
+    property var revealedSpoilers: ({})
+    property int revealedSpoilersVersion: 0
+
+    // Estrae le entities textEntityTypeSpoiler dal messaggio corrente. Le entities
+    // possono stare in content.text.entities (messageText) o content.caption.entities
+    // (messagePhoto/Video/Animation/Audio/VoiceNote/Document).
+    function getMessageSpoilerEntities() {
+        if (!myMessage || !myMessage.content) {
+            return [];
+        }
+        var bag = null;
+        if (myMessage.content.text && myMessage.content.text.entities) {
+            bag = myMessage.content.text.entities;
+        } else if (myMessage.content.caption && myMessage.content.caption.entities) {
+            bag = myMessage.content.caption.entities;
+        }
+        if (!bag) {
+            return [];
+        }
+        var found = [];
+        for (var i = 0; i < bag.length; i++) {
+            if (bag[i] && bag[i].type && bag[i].type['@type'] === "textEntityTypeSpoiler") {
+                found.push(bag[i]);
+            }
+        }
+        return found;
+    }
+
+    readonly property var spoilerEntities: getMessageSpoilerEntities()
+    readonly property bool hasSpoilers: spoilerEntities.length > 0
+    readonly property bool anySpoilerRevealed: {
+        for (var k in revealedSpoilers) {
+            if (revealedSpoilers[k]) return true;
+        }
+        return false;
+    }
+
+    // Toggle: se nessuno spoiler è rivelato, rivela tutti (popola revealedSpoilers
+    // con tutte le entity dello spoiler del messaggio); altrimenti azzera.
+    function toggleAllSpoilers() {
+        if (anySpoilerRevealed) {
+            revealedSpoilers = {};
+            revealedSpoilersVersion++;
+            return;
+        }
+        var next = {};
+        for (var i = 0; i < spoilerEntities.length; i++) {
+            var e = spoilerEntities[i];
+            next[e.offset + "-" + e.length] = true;
+        }
+        revealedSpoilers = next;
+        revealedSpoilersVersion++;
+    }
+
+    // Intercetta i link "rtspoiler://OFFSET/LENGTH" emessi dai render degli spoiler:
+    // marca la coppia come rivelata e aggiorna la property per re-triggerare il
+    // binding del testo. Ritorna true se il link era uno spoiler (gestito), false
+    // altrimenti — il chiamante prosegue con la normale handleLink in caso false.
+    function handleSpoilerLink(link) {
+        if (typeof link !== "string" || link.indexOf("rtspoiler://") !== 0) {
+            return false;
+        }
+        var rest = link.substring("rtspoiler://".length);
+        var parts = rest.split("/");
+        if (parts.length < 2) {
+            return true;
+        }
+        var key = parts[0] + "-" + parts[1];
+        var next = {};
+        for (var k in revealedSpoilers) {
+            next[k] = revealedSpoilers[k];
+        }
+        next[key] = true;
+        revealedSpoilers = next;
+        revealedSpoilersVersion++;
+        return true;
+    }
+
     function deleteMessage() {
         var chatId = page.chatInformation.id
         var messageId = myMessage.id
@@ -163,12 +253,34 @@ ListItem {
         })
     }
 
+    // True quando il messaggio fa parte di un album multimediale TDLib
+    // (più messaggi inviati in batch con stesso media_album_id).
+    readonly property bool isPartOfAlbum: !!myMessage && !!myMessage.media_album_id && myMessage.media_album_id !== "0"
+
+    function deleteAlbum() {
+        if (!isPartOfAlbum) {
+            deleteMessage()
+            return
+        }
+        var chatId = page.chatInformation.id
+        var albumIds = chatModel.getMessageIdsForAlbum(myMessage.media_album_id)
+        if (!albumIds || albumIds.length === 0) {
+            // fallback: se il modello non ha ancora popolato l'album, cancella
+            // almeno il messaggio corrente per non dare un no-op silenzioso
+            albumIds = [ myMessage.id ]
+        }
+        var stringIds = albumIds.map(function(id) { return id.toString() })
+        Remorse.popupAction(page, qsTr("%Ln messages of album deleted", "", stringIds.length), function() {
+            tdLibWrapper.deleteMessages(chatId, stringIds);
+        })
+    }
+
     function deleteAllMessagesFromSender() {
         if (!senderIsUser) {
             return
         }
         var chatId = page.chatInformation.id
-        Remorse.popupAction(page, qsTr("Eliminazione messaggi avviata"), function() {
+        Remorse.popupAction(page, qsTr("Deletion of messages started"), function() {
             tdLibWrapper.deleteChatMessagesBySender(chatId, senderUserId)
         })
     }
@@ -178,7 +290,7 @@ ListItem {
             return
         }
         var chatId = page.chatInformation.id
-        Remorse.popupAction(page, qsTr("Utente bannato"), function() {
+        Remorse.popupAction(page, qsTr("User banned"), function() {
             tdLibWrapper.banChatMember(chatId, senderUserId, 0)
         })
     }
@@ -186,7 +298,7 @@ ListItem {
     function reportSenderAsSpam() {
         var chatId = page.chatInformation.id
         tdLibWrapper.reportChatSpam(chatId, [myMessage.id])
-        appNotification.show(qsTr("Segnalazione inviata"))
+        appNotification.show(qsTr("Report submitted"))
     }
 
     function copyMessageToClipboard() {
@@ -325,9 +437,12 @@ ListItem {
     readonly property var resolvedWebPagePreviewData: resolveWebPagePreviewData(myMessage)
 
     function refreshRenderedMessageText() {
-        var updatedMessageText = Emoji.emojify(Functions.getMessageText(myMessage, false, page.myUserId, false), Theme.fontSizeSmall);
-        messageText.text = updatedMessageText;
-        messageTextDisplay.text = updatedMessageText;
+        // NON assegnare imperativamente messageText.text / messageTextDisplay.text:
+        // quell'assegnazione distruggerebbe il binding QML, e dopo la prima chiamata
+        // (che scatta su onMyMessageChanged molto presto) il `text:` non si rivaluterebbe
+        // più al cambio di `revealedSpoilers`. Invece bumpiamo il contatore int che
+        // appare esplicitamente nel binding, costringendolo a rieseguire la JS expression.
+        revealedSpoilersVersion++;
     }
 
     onClicked: {
@@ -447,6 +562,11 @@ ListItem {
         sourceComponent: Component {
             ContextMenu {
                 MenuItem {
+                    visible: hasSpoilers
+                    onClicked: toggleAllSpoilers()
+                    text: anySpoilerRevealed ? qsTr("Hide spoiler") : qsTr("Reveal spoiler")
+                }
+                MenuItem {
                     visible: canReplyToMessage
                     onClicked: replyToMessage()
                     text: qsTr("Reply to Message")
@@ -459,7 +579,7 @@ ListItem {
                 MenuItem {
                     visible: showForwardMessageMenuItem
                     onClicked: forwardMessage()
-                    text: qsTr("Inoltra messaggio")
+                    text: qsTr("Forward message")
                 }
                 MenuItem {
                     visible: canPinMessage
@@ -474,7 +594,12 @@ ListItem {
                 MenuItem {
                     visible: canDeleteMessage
                     onClicked: deleteMessage()
-                    text: qsTr("Cancella messaggio")
+                    text: qsTr("Delete message")
+                }
+                MenuItem {
+                    visible: canDeleteMessage && isPartOfAlbum
+                    onClicked: deleteAlbum()
+                    text: qsTr("Delete album")
                 }
                 MenuItem {
                     onClicked: page.toggleMessageSelection(myMessage)
@@ -690,7 +815,7 @@ ListItem {
 
                 anchors {
                     left: parent.left
-                    leftMargin: messageListItem.isOwnMessage ? precalculatedValues.pageMarginDouble : 0
+                    leftMargin: messageListItem.useOutgoingLayout ? precalculatedValues.pageMarginDouble : 0
                     verticalCenter: parent.verticalCenter
                 }
                 height: messageTextColumn.height + precalculatedValues.paddingMediumDouble
@@ -717,7 +842,7 @@ ListItem {
                     id: userText
 
                     width: parent.width
-                    text: messageListItem.isOwnMessage
+                    text: messageListItem.useOutgoingLayout
                           ? qsTr("You")
                           : Emoji.emojify( myMessage['@type'] === "sponsoredMessage"
                                           ? tdLibWrapper.getChat(myMessage.sponsor_chat_id).title
@@ -728,7 +853,7 @@ ListItem {
                     font.weight: Font.ExtraBold
                     color: messageListItem.textColor
                     maximumLineCount: 1
-                    truncationMode: TruncationMode.Fade
+                    truncationMode: TruncationMode.Elide
                     textFormat: Text.StyledText
                     horizontalAlignment: messageListItem.textAlign
                     visible: precalculatedValues.showUserInfo || myMessage['@type'] === "sponsoredMessage"
@@ -751,11 +876,12 @@ ListItem {
                     width: parent.width
                     // text height ~= 1,28*font.pixelSize
                     height: active ? precalculatedValues.messageInReplyToHeight : 0
+                    clip: true
                     property var inReplyToMessage;
                     property bool inReplyToMessageDeleted: false;
                     sourceComponent: Component {
                         Item {
-                            width: messageInReplyToRow.width
+                            width: messageInReplyToLoader.width
                             height: messageInReplyToRow.height
                             InReplyToRow {
                                 id: messageInReplyToRow
@@ -833,7 +959,7 @@ ListItem {
                                     font.pixelSize: Theme.fontSizeExtraSmall
                                     width: parent.width
                                     font.italic: true
-                                    truncationMode: TruncationMode.Fade
+                                    truncationMode: TruncationMode.Elide
                                     textFormat: Text.StyledText
                                     text: qsTr("Forwarded Message")
                                 }
@@ -843,7 +969,7 @@ ListItem {
                                     color: Theme.primaryColor
                                     width: parent.width
                                     font.bold: true
-                                    truncationMode: TruncationMode.Fade
+                                    truncationMode: TruncationMode.Elide
                                     textFormat: Text.StyledText
                                     text: Emoji.emojify(forwardedMessageInformationRow.otherChatInformation.title, font.pixelSize)
                                 }
@@ -855,10 +981,17 @@ ListItem {
                 TextEdit {
                     id: messageText
                     width: parent.width
-                    text: Emoji.emojify(Functions.getMessageText(myMessage, false, page.myUserId, false), Theme.fontSizeMedium)
+                    // Short-circuit when not in selection mode. The TextEdit is kept in the
+                    // tree so the `messageText` id stays valid for selection helpers, but
+                    // skipping the binding avoids the (very expensive) Emoji.emojify +
+                    // RichText parse on every delegate when selection is disabled. On
+                    // photo-heavy channels this cut roughly halves per-delegate cost.
+                    text: messageListItem.canSelectMessageText
+                          ? (messageListItem.revealedSpoilersVersion, Emoji.emojify(Functions.getMessageText(myMessage, false, page.myUserId, false, messageListItem.revealedSpoilers), Theme.fontSizeMedium))
+                          : ""
                     font.pixelSize: Theme.fontSizeSmall
                     color: messageListItem.textColor
-                    wrapMode: TextEdit.WordWrap
+                    wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
                     textFormat: TextEdit.RichText
                     readOnly: true
                     cursorVisible: false
@@ -868,6 +1001,9 @@ ListItem {
                     selectionColor: Theme.highlightBackgroundColor
                     selectedTextColor: Theme.primaryColor
                     onLinkActivated: {
+                        if (messageListItem.handleSpoilerLink(link)) {
+                            return;
+                        }
                         var chatCommand = Functions.handleLink(link);
                         if(chatCommand) {
                             tdLibWrapper.sendTextMessage(chatInformation.id, chatCommand);
@@ -880,12 +1016,15 @@ ListItem {
                 Text {
                     id: messageTextDisplay
                     width: parent.width
-                    text: Emoji.emojify(Functions.getMessageText(myMessage, false, page.myUserId, false), Theme.fontSizeMedium)
+                    text: (messageListItem.revealedSpoilersVersion, Emoji.emojify(Functions.getMessageText(myMessage, false, page.myUserId, false, messageListItem.revealedSpoilers), Theme.fontSizeMedium))
                     font.pixelSize: Theme.fontSizeSmall
                     color: messageListItem.textColor
-                    wrapMode: Text.WordWrap
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     textFormat: Text.RichText
                     onLinkActivated: {
+                        if (messageListItem.handleSpoilerLink(link)) {
+                            return;
+                        }
                         var chatCommand = Functions.handleLink(link);
                         if(chatCommand) {
                             tdLibWrapper.sendTextMessage(chatInformation.id, chatCommand);
@@ -972,7 +1111,7 @@ ListItem {
 
                     id: messageDateText
                     font.pixelSize: Theme.fontSizeTiny
-                    color: messageListItem.isOwnMessage ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                    color: messageListItem.useOutgoingLayout ? Theme.secondaryHighlightColor : Theme.secondaryColor
                     horizontalAlignment: messageListItem.textAlign
                     text: getMessageStatusText(myMessage, messageIndex, chatView.lastReadSentIndex, messageDateText.useElapsed)
                     MouseArea {
@@ -996,7 +1135,7 @@ ListItem {
                             text: getInteractionText(messageViewCount, reactions, font.pixelSize, Theme.highlightColor)
                             width: parent.width
                             font.pixelSize: Theme.fontSizeTiny
-                            color: messageListItem.isOwnMessage ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                            color: messageListItem.useOutgoingLayout ? Theme.secondaryHighlightColor : Theme.secondaryColor
                             horizontalAlignment: messageListItem.textAlign
                             textFormat: Text.StyledText
                             maximumLineCount: 1
@@ -1024,7 +1163,7 @@ ListItem {
                 opacity: visible ? 0.5 : 0.0
                 Behavior on opacity { NumberAnimation {} }
                 anchors {
-                    horizontalCenter: messageListItem.isOwnMessage ? messageBackground.left : messageBackground.right
+                    horizontalCenter: messageListItem.useOutgoingLayout ? messageBackground.left : messageBackground.right
                     verticalCenter: messageBackground.verticalCenter
                 }
                 height: Theme.itemSizeExtraSmall

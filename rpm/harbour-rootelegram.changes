@@ -11,6 +11,23 @@
 
 # * date Author's Name <author's email> version-release
 # - Summary of changes
+* Fri May 15 2026 RootGPT <tutorialxinformatici@gmail.com> 1.5
+- GIF (messageAnimation) ora rese come gli sticker animati: autoplay in loop infinito, nessun chrome (niente play/fullscreen/slider/timer), tap mette in pausa/riprende. Nuovo componente MessageAnimation.qml standalone (prima era un alias di MessageVideo che ereditava tutti i controlli video). Loop gestito nativamente da MediaPlayer.loops=Infinite (no seek+play, niente scatto fra fine e riavvio). Placeholder via TDLibThumbnail per gestire correttamente i thumbnail thumbnailFormatMpeg4 (frequenti per le animation, causavano "Unsupported image format" su QML Image).
+- Nuova voce di context menu "Elimina album" sui messaggi che fanno parte di un album multimediale (media_album_id != "0"): cancella in un colpo solo tutti i messaggi dello stesso album invece di doverli selezionare uno per uno. La voce "Cancella messaggio" rimane invariata e cancella solo il singolo messaggio.
+
+* Fri May 15 2026 RootGPT <tutorialxinformatici@gmail.com> 1.4
+- Fix apertura chat dalle notifiche quando l'utente è in una cartella diversa da "Tutte" o riceve notifiche di gruppi/canali non presenti nella cartella attiva: ChatListModel::getById ora cerca anche tra le chat filtrate dalla cartella (folderFilteredChats) e tra le hiddenChats invece di restituire una mappa vuota; OverviewPage.openChat fa fallback su tdLibWrapper.getChat() se la chat non è ancora nel modello. Risolve TypeError "@type of undefined" in ChatPage.qml, errore TDLib "Can't parse as an integer string \"\"" e freeze su chat aperte da notifica.
+
+* Wed May 13 2026 RootGPT <tutorialxinformatici@gmail.com> 1.3
+- Aggiunta ricerca contatti nella pagina di inoltro (ChatSelectionPage).
+- Fix overflow del testo nei messaggi: monospace/code ora va a capo (WrapAtWordBoundaryOrAnywhere).
+- Fix overflow nelle risposte citate (in-reply): width esplicita al Loader, clip attivo, elide corretto con StyledText.
+- Fix sovrapposizione del nome del topic con il nome del gruppo nell'header della ChatPage.
+- Bubble dei messaggi spostati verso i bordi (3px) per maggiore spazio utile.
+- Rinominato l'application ID D-Bus/settings da `de.ygriega` a `com.github.RootGPT_YouTube` (autore del fork).
+- Pre-install %pre scriptlet: durante l'upgrade da RooTelegram 1.0–1.2, ferma eventuali processi RooTelegram e cancella tutte le directory di stato (config, data, cache) sia legacy `de.ygriega` sia attuali `com.github.RootGPT_YouTube`, oltre ai file .service D-Bus residui. L'app riparte come fresh-install, l'utente deve rifare il login Telegram (OTP) — per design, garantisce uno stato pulito e consistente al primo avvio della nuova versione.
+- Post-install %posttrans scriptlet: riavvia automaticamente `lipstick` (Sailfish Home) nella sessione utente per invalidare la cache in-memory del launcher che altrimenti continuerebbe a chiamare il vecchio bus name `de.ygriega.rootelegram` al tap dell'icona. Reload Home di 1-2 secondi, nessuna perdita di applicazioni in background.
+
 * Wed May 06 2026 RootGPT <rootgpt@local> 0.17.1
 - Fix: Restore chat page delegate loading by importing WerkWolf.RooTelegram 1.0 in MessageListViewItem.qml, resolving "NamedAction is not a type" and "MessageListViewItem unavailable" runtime errors.
 

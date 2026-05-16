@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2021 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +25,7 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 import WerkWolf.RooTelegram 1.0
+import "../../js/functions.js" as Functions
 
 AccordionItem {
     text: qsTr("Behavior")
@@ -83,6 +89,17 @@ AccordionItem {
 
             TextSwitch {
                 width: parent.columnWidth
+                checked: appSettings.coverHideGroupChannelUnread
+                text: qsTr("Cover: only private chats in unread count")
+                description: qsTr("Exclude groups and channels from the unread message and chat counts shown on the cover preview")
+                automaticCheck: false
+                onClicked: {
+                    appSettings.coverHideGroupChannelUnread = !checked
+                }
+            }
+
+            TextSwitch {
+                width: parent.columnWidth
                 checked: appSettings.useOpenWith
                 text: qsTr("Open-with menu integration")
                 description: qsTr("Integrate RooTelegram into open-with menu of Sailfish OS")
@@ -122,6 +139,23 @@ AccordionItem {
                 automaticCheck: false
                 onClicked: {
                     appSettings.goToQuotedMessage = !checked
+                }
+            }
+
+            TextSwitch {
+                width: parent.columnWidth
+                checked: appSettings.disableVideoPreload
+                text: qsTr("Disable video preloading")
+                description: qsTr("Disables automatic video preloading to reduce RAM/GPU and mobile data usage. Photos are still downloaded automatically.")
+                automaticCheck: false
+                onClicked: {
+                    var desired = !checked
+                    appSettings.disableVideoPreload = desired
+                    if (desired) {
+                        Functions.applyVideoPreloadOverride()
+                    } else {
+                        Functions.restoreAutoDownloadDefaults()
+                    }
                 }
             }
 

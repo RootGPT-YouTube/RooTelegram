@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020-22 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -175,6 +180,7 @@ void TDLibWrapper::initializeTDLibReceiver() {
     connect(this->tdLibReceiver, SIGNAL(pinnedMessagesFound(qlonglong, qlonglong, QVariantList)), this, SIGNAL(pinnedMessagesReceived(qlonglong, qlonglong, QVariantList)));
     connect(this->tdLibReceiver, SIGNAL(sponsoredMessageReceived(qlonglong, QVariantMap)), this, SLOT(handleSponsoredMessage(qlonglong, QVariantMap)));
     connect(this->tdLibReceiver, SIGNAL(messageLinkInfoReceived(QString, QVariantMap, QString)), this, SIGNAL(messageLinkInfoReceived(QString, QVariantMap, QString)));
+    connect(this->tdLibReceiver, SIGNAL(chatStatisticsUrlReceived(qlonglong, QString)), this, SIGNAL(chatStatisticsUrlReceived(qlonglong, QString)));
     connect(this->tdLibReceiver, SIGNAL(newMessageReceived(qlonglong, QVariantMap)), this, SIGNAL(newMessageReceived(qlonglong, QVariantMap)));
     connect(this->tdLibReceiver, SIGNAL(messageInformation(qlonglong, qlonglong, QVariantMap)), this, SLOT(handleMessageInformation(qlonglong, qlonglong, QVariantMap)));
     connect(this->tdLibReceiver, SIGNAL(messageSendSucceeded(qlonglong, qlonglong, QVariantMap)), this, SIGNAL(messageSendSucceeded(qlonglong, qlonglong, QVariantMap)));
@@ -185,7 +191,9 @@ void TDLibWrapper::initializeTDLibReceiver() {
     connect(this->tdLibReceiver, SIGNAL(messageContentUpdated(qlonglong, qlonglong, QVariantMap)), this, SIGNAL(messageContentUpdated(qlonglong, qlonglong, QVariantMap)));
     connect(this->tdLibReceiver, SIGNAL(messagesDeleted(qlonglong, QList<qlonglong>)), this, SIGNAL(messagesDeleted(qlonglong, QList<qlonglong>)));
     connect(this->tdLibReceiver, SIGNAL(chats(QVariantMap)), this, SIGNAL(chatsReceived(QVariantMap)));
+    connect(this->tdLibReceiver, SIGNAL(chats(QVariantMap)), this, SLOT(handleChatsReceived(QVariantMap)));
     connect(this->tdLibReceiver, SIGNAL(chat(QVariantMap)), this, SLOT(handleChatReceived(QVariantMap)));
+    connect(this->tdLibReceiver, SIGNAL(chatThemesUpdated(QVariantList)), this, SLOT(handleChatThemesUpdated(QVariantList)));
     connect(this->tdLibReceiver, SIGNAL(secretChat(qlonglong, QVariantMap)), this, SLOT(handleSecretChatReceived(qlonglong, QVariantMap)));
     connect(this->tdLibReceiver, SIGNAL(secretChatUpdated(qlonglong, QVariantMap)), this, SLOT(handleSecretChatUpdated(qlonglong, QVariantMap)));
     connect(this->tdLibReceiver, SIGNAL(recentStickersUpdated(QVariantList)), this, SIGNAL(recentStickersUpdated(QVariantList)));
@@ -197,6 +205,7 @@ void TDLibWrapper::initializeTDLibReceiver() {
     connect(this->tdLibReceiver, SIGNAL(customEmojiStickers(QVariantList, QString)), this, SLOT(handleCustomEmojiStickers(QVariantList, QString)));
     connect(this->tdLibReceiver, SIGNAL(customEmojiStickers(QVariantList, QString)), this, SIGNAL(customEmojiStickersReceived(QVariantList, QString)));
     connect(this->tdLibReceiver, SIGNAL(chatMembers(QString, QVariantList, int)), this, SIGNAL(chatMembersReceived(QString, QVariantList, int)));
+    connect(this->tdLibReceiver, SIGNAL(chatEventLogReceived(qlonglong, QVariantList)), this, SIGNAL(chatEventLogReceived(qlonglong, QVariantList)));
     connect(this->tdLibReceiver, SIGNAL(chatJoinRequests(qlonglong, int, QVariantList)), this, SIGNAL(chatJoinRequestsReceived(qlonglong, int, QVariantList)));
     connect(this->tdLibReceiver, SIGNAL(chatPendingJoinRequestsUpdated(qlonglong, QVariantMap)), this, SLOT(handleChatPendingJoinRequestsUpdated(qlonglong, QVariantMap)));
     connect(this->tdLibReceiver, SIGNAL(newChatJoinRequest(qlonglong, QVariantMap, QVariantMap)), this, SLOT(handleNewChatJoinRequest(qlonglong, QVariantMap, QVariantMap)));
@@ -685,12 +694,13 @@ static QVariantMap formattedTextFromMessage(const QString &message, const QVaria
         }
     }
 
-    // Lightweight markup support: **bold**, __italic__, ++underline++, ~~strikethrough~~, `mono`
+    // Lightweight markup support: **bold**, __italic__, ++underline++, ~~strikethrough~~, `mono`, ||spoiler||
     extractDelimitedEntity(processedMessage, "`", "textEntityTypeCode", entities);
     extractDelimitedEntity(processedMessage, "**", "textEntityTypeBold", entities);
     extractDelimitedEntity(processedMessage, "__", "textEntityTypeItalic", entities);
     extractDelimitedEntity(processedMessage, "++", "textEntityTypeUnderline", entities);
     extractDelimitedEntity(processedMessage, "~~", "textEntityTypeStrikethrough", entities);
+    extractDelimitedEntity(processedMessage, "||", "textEntityTypeSpoiler", entities);
 
     if (!entities.isEmpty()) {
         QVariantList filteredEntities;
@@ -844,6 +854,43 @@ void TDLibWrapper::sendPhotoMessage(qlonglong chatId, const QString &filePath, c
     inputMessageContent.insert("photo", photoInputFile);
 
     requestObject.insert("input_message_content", inputMessageContent);
+    this->sendRequest(requestObject);
+}
+
+void TDLibWrapper::sendPhotoAlbum(qlonglong chatId, const QStringList &filePaths, const QString &caption, qlonglong replyToMessageId)
+{
+    LOG("Sending photo album" << chatId << filePaths.size() << caption << replyToMessageId);
+    QVariantMap requestObject;
+    requestObject.insert(_TYPE, "sendMessageAlbum");
+    requestObject.insert(CHAT_ID, chatId);
+    if (currentMessageThreadId && currentMessageThreadId != 1) {
+        QVariantMap topicId;
+        topicId.insert(_TYPE, "messageTopicForum");
+        topicId.insert("forum_topic_id", (int)currentMessageThreadId);
+        requestObject.insert("topic_id", topicId);
+    }
+    if (replyToMessageId) {
+        QVariantMap replyTo;
+        replyTo.insert(_TYPE, TYPE_INPUT_MESSAGE_REPLY_TO_MESSAGE);
+        replyTo.insert(MESSAGE_ID, replyToMessageId);
+        requestObject.insert(REPLY_TO, replyTo);
+    }
+    QVariantList inputMessageContents;
+    const int maxAlbumSize = 10;
+    const int count = qMin(filePaths.size(), maxAlbumSize);
+    for (int i = 0; i < count; ++i) {
+        QVariantMap content;
+        content.insert(_TYPE, "inputMessagePhoto");
+        QVariantMap photoInputFile;
+        photoInputFile.insert(_TYPE, "inputFileLocal");
+        photoInputFile.insert("path", filePaths.at(i));
+        content.insert("photo", photoInputFile);
+        if (i == 0 && !caption.isEmpty()) {
+            content.insert("caption", formattedTextFromMessage(caption));
+        }
+        inputMessageContents.append(content);
+    }
+    requestObject.insert("input_message_contents", inputMessageContents);
     this->sendRequest(requestObject);
 }
 
@@ -1161,6 +1208,25 @@ void TDLibWrapper::banChatMember(qlonglong chatId, qlonglong userId, qlonglong b
     this->sendRequest(requestObject);
 }
 
+void TDLibWrapper::unbanChatMember(qlonglong chatId, qlonglong userId)
+{
+    LOG("Unbanning chat member" << chatId << userId);
+    QVariantMap memberId;
+    memberId.insert(_TYPE, "messageSenderUser");
+    memberId.insert("user_id", userId);
+
+    QVariantMap leftStatus;
+    leftStatus.insert(_TYPE, "chatMemberStatusLeft");
+
+    QVariantMap requestObject;
+    requestObject.insert(_TYPE, "setChatMemberStatus");
+    requestObject.insert(CHAT_ID, chatId);
+    requestObject.insert("member_id", memberId);
+    requestObject.insert("status", leftStatus);
+    requestObject.insert(_EXTRA, QString("unbanChatMember:%1:%2").arg(chatId).arg(userId));
+    this->sendRequest(requestObject);
+}
+
 void TDLibWrapper::reportChatSpam(qlonglong chatId, const QVariantList &messageIds)
 {
     LOG("Reporting chat spam" << chatId << messageIds);
@@ -1322,15 +1388,49 @@ bool TDLibWrapper::isCustomEmojiFileId(int fileId) const
 {
     return this->customEmojiFileIds.contains(fileId);
 }
-void TDLibWrapper::getSupergroupMembers(const QString &groupId, int limit, int offset)
+void TDLibWrapper::getSupergroupMembers(const QString &groupId, int limit, int offset, const QString &filterType, const QString &extra)
 {
     LOG("Retrieving SupergroupMembers");
+    const QString resolvedFilterType = filterType.isEmpty() ? QStringLiteral("supergroupMembersFilterRecent") : filterType;
+    const QString resolvedExtra = extra.isEmpty() ? groupId : extra;
     QVariantMap requestObject;
     requestObject.insert(_TYPE, "getSupergroupMembers");
-    requestObject.insert(_EXTRA, groupId);
+    requestObject.insert(_EXTRA, resolvedExtra);
     requestObject.insert("supergroup_id", groupId);
+    QVariantMap filterObject;
+    filterObject.insert(_TYPE, resolvedFilterType);
+    requestObject.insert("filter", filterObject);
     requestObject.insert("offset", offset);
     requestObject.insert("limit", limit);
+    this->sendRequest(requestObject);
+}
+
+void TDLibWrapper::getChatEventLog(qlonglong chatId, qlonglong fromEventId, int limit)
+{
+    LOG("Retrieving chat event log for chat" << chatId << "from event" << fromEventId << "limit" << limit);
+    QVariantMap requestObject;
+    requestObject.insert(_TYPE, "getChatEventLog");
+    requestObject.insert(CHAT_ID, chatId);
+    requestObject.insert("query", "");
+    requestObject.insert("from_event_id", fromEventId);
+    requestObject.insert("limit", limit > 0 ? limit : 50);
+    QVariantMap filters;
+    filters.insert(_TYPE, "chatEventLogFilters");
+    filters.insert("message_edits", true);
+    filters.insert("message_deletions", true);
+    filters.insert("message_pins", true);
+    filters.insert("member_joins", true);
+    filters.insert("member_leaves", true);
+    filters.insert("member_invites", true);
+    filters.insert("member_promotions", true);
+    filters.insert("member_restrictions", true);
+    filters.insert("info_changes", true);
+    filters.insert("setting_changes", true);
+    filters.insert("invite_link_changes", true);
+    filters.insert("video_chat_changes", true);
+    requestObject.insert("filters", filters);
+    requestObject.insert("user_ids", QVariantList());
+    requestObject.insert(_EXTRA, QString::number(chatId));
     this->sendRequest(requestObject);
 }
 
@@ -1515,6 +1615,68 @@ void TDLibWrapper::setChatTitle(const QString &chatId, const QString &title)
     requestObject.insert("title", title);
     this->sendRequest(requestObject);
 }
+void TDLibWrapper::setChatPhoto(const QString &chatId, const QString &filePath)
+{
+    LOG("Setting Chat Photo" << chatId << filePath);
+    QVariantMap requestObject;
+    requestObject.insert(_TYPE, "setChatPhoto");
+    requestObject.insert(_EXTRA, QStringLiteral("setChatPhoto:%1").arg(chatId));
+    requestObject.insert(CHAT_ID, chatId);
+    QVariantMap inputChatPhoto;
+    inputChatPhoto.insert(_TYPE, "inputChatPhotoStatic");
+    QVariantMap inputFile;
+    inputFile.insert(_TYPE, "inputFileLocal");
+    inputFile.insert("path", filePath);
+    inputChatPhoto.insert("photo", inputFile);
+    requestObject.insert("photo", inputChatPhoto);
+    this->sendRequest(requestObject);
+}
+
+void TDLibWrapper::setChatDiscussionGroup(qlonglong chatId, qlonglong discussionChatId)
+{
+    LOG("Setting Chat Discussion Group" << chatId << "->" << discussionChatId);
+    QVariantMap requestObject;
+    requestObject.insert(_TYPE, "setChatDiscussionGroup");
+    requestObject.insert(CHAT_ID, chatId);
+    requestObject.insert("discussion_chat_id", discussionChatId);
+    this->sendRequest(requestObject);
+}
+
+void TDLibWrapper::getSuitableDiscussionChats()
+{
+    LOG("Getting suitable discussion chats");
+    QVariantMap requestObject;
+    requestObject.insert(_TYPE, "getSuitableDiscussionChats");
+    requestObject.insert(_EXTRA, "getSuitableDiscussionChats");
+    this->sendRequest(requestObject);
+}
+
+void TDLibWrapper::getChatStatisticsUrl(qlonglong chatId, bool isDark)
+{
+    LOG("Getting chat statistics URL" << chatId << isDark);
+    QVariantMap requestObject;
+    requestObject.insert(_TYPE, "getChatStatisticsUrl");
+    requestObject.insert(CHAT_ID, chatId);
+    requestObject.insert("parameters", "");
+    requestObject.insert("is_dark", isDark);
+    requestObject.insert(_EXTRA, QStringLiteral("getChatStatisticsUrl:%1").arg(chatId));
+    this->sendRequest(requestObject);
+}
+
+void TDLibWrapper::setChatTheme(qlonglong chatId, const QString &themeName)
+{
+    LOG("Setting Chat Theme" << chatId << themeName);
+    QVariantMap requestObject;
+    requestObject.insert(_TYPE, "setChatTheme");
+    requestObject.insert(CHAT_ID, chatId);
+    requestObject.insert("theme_name", themeName);
+    this->sendRequest(requestObject);
+}
+
+QVariantList TDLibWrapper::getAvailableChatThemes() const
+{
+    return availableChatThemes;
+}
 
 void TDLibWrapper::setBio(const QString &bio)
 {
@@ -1522,6 +1684,16 @@ void TDLibWrapper::setBio(const QString &bio)
     QVariantMap requestObject;
     requestObject.insert(_TYPE, "setBio");
     requestObject.insert("bio", bio);
+    this->sendRequest(requestObject);
+}
+
+void TDLibWrapper::upgradeBasicGroupChatToSupergroupChat(qlonglong chatId)
+{
+    LOG("Upgrading basic group chat to supergroup chat" << chatId);
+    QVariantMap requestObject;
+    requestObject.insert(_TYPE, "upgradeBasicGroupChatToSupergroupChat");
+    requestObject.insert(CHAT_ID, chatId);
+    requestObject.insert(_EXTRA, QStringLiteral("upgradeBasicGroup:%1").arg(chatId));
     this->sendRequest(requestObject);
 }
 
@@ -2516,6 +2688,19 @@ void TDLibWrapper::handleNewChatDiscovered(const QVariantMap &chatInformation)
     emit newChatDiscovered(chatId, chatInformation);
 }
 
+void TDLibWrapper::handleChatsReceived(const QVariantMap &chats)
+{
+    if (chats.value(_EXTRA).toString() == QStringLiteral("getSuitableDiscussionChats")) {
+        emit suitableDiscussionChatsReceived(chats.value("chat_ids").toList());
+    }
+}
+
+void TDLibWrapper::handleChatThemesUpdated(const QVariantList &themes)
+{
+    availableChatThemes = themes;
+    emit availableChatThemesUpdated(themes);
+}
+
 void TDLibWrapper::handleChatReceived(const QVariantMap &chatInformation)
 {
     emit chatReceived(chatInformation);
@@ -3089,9 +3274,9 @@ void TDLibWrapper::initializeOpenWith()
         } else {
             fileOut << QString("MimeType=x-url-handler/t.me;x-scheme-handler/tg;").toUtf8() << "\n";
         }
-        fileOut << QString("X-Maemo-Service=de.ygriega.rootelegram").toUtf8() << "\n";
-        fileOut << QString("X-Maemo-Object-Path=/de/ygriega/rootelegram").toUtf8() << "\n";
-        fileOut << QString("X-Maemo-Method=de.ygriega.rootelegram.openUrl").toUtf8() << "\n";
+        fileOut << QString("X-Maemo-Service=com.github.RootGPT_YouTube.rootelegram").toUtf8() << "\n";
+        fileOut << QString("X-Maemo-Object-Path=/com/github/RootGPT_YouTube/rootelegram").toUtf8() << "\n";
+        fileOut << QString("X-Maemo-Method=com.github.RootGPT_YouTube.rootelegram.openUrl").toUtf8() << "\n";
         fileOut << QString("Hidden=true;").toUtf8() << "\n";
         fileOut.flush();
         desktopFile.close();
@@ -3104,7 +3289,7 @@ void TDLibWrapper::initializeOpenWith()
         LOG("Creating D-Bus directory" << dbusPathName);
         dbusPath.mkpath(dbusPathName);
     }
-    QString dbusServiceFileName = dbusPathName + "/de.ygriega.rootelegram.service";
+    QString dbusServiceFileName = dbusPathName + "/com.github.RootGPT_YouTube.rootelegram.service";
     QFile dbusServiceFile(dbusServiceFileName);
     if (dbusServiceFile.exists()) {
         LOG("D-BUS service file existing, removing to ensure proper re-creation...");
@@ -3115,7 +3300,7 @@ void TDLibWrapper::initializeOpenWith()
         QTextStream fileOut(&dbusServiceFile);
         fileOut.setCodec("UTF-8");
         fileOut << QString("[D-BUS Service]").toUtf8() << "\n";
-        fileOut << QString("Name=de.ygriega.rootelegram").toUtf8() << "\n";
+        fileOut << QString("Name=com.github.RootGPT_YouTube.rootelegram").toUtf8() << "\n";
         fileOut << QString("Exec=sailjail -- /usr/bin/harbour-rootelegram").toUtf8() << "\n";
         fileOut.flush();
         dbusServiceFile.close();
@@ -3222,6 +3407,8 @@ void TDLibWrapper::getForumTopics(qlonglong chatId, const QString &query, qlongl
     }
     requestObject.insert("offset_date", offsetDate);
     requestObject.insert("offset_message_id", offsetMessageId);
+    requestObject.insert("offset_forum_topic_id", offsetMessageThreadId);
+    // Compatibilità con versioni TDLib che usano ancora message_thread_id
     requestObject.insert("offset_message_thread_id", offsetMessageThreadId);
     requestObject.insert("limit", limit);
     this->sendRequest(requestObject);
@@ -3232,6 +3419,8 @@ void TDLibWrapper::getForumTopic(qlonglong chatId, int forumTopicId)
         QVariantMap requestObject;
     requestObject.insert(_TYPE, "getForumTopic");
     requestObject.insert(CHAT_ID, chatId);
+    requestObject.insert("forum_topic_id", forumTopicId);
+    // Compatibilità con versioni TDLib che usano ancora message_thread_id
     requestObject.insert("message_thread_id", forumTopicId);
     requestObject.insert(_EXTRA, QString("getForumTopic:%1:%2").arg(chatId).arg(forumTopicId));
     this->sendRequest(requestObject);

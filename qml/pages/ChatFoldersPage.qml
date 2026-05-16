@@ -1,3 +1,12 @@
+/*
+    Forked in 2026 by RootGPT
+
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
+*/
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 import WerkWolf.RooTelegram 1.0
@@ -69,9 +78,9 @@ Page {
             pendingCreateAttempt = -1;
             pendingCreateRequestExtra = "";
             createFolderResponseTimer.stop();
-            createStatusText = qsTr("Cartella creata.");
+            createStatusText = qsTr("Folder created.");
             createStatusIsError = false;
-            appNotification.show(qsTr("Cartella creata."));
+            appNotification.show(qsTr("Folder created."));
         }
     }
 
@@ -170,7 +179,7 @@ Page {
         if (folderId <= 0 || isDeletePending(folderId)) {
             return;
         }
-        Remorse.itemAction(sourceItem, qsTr("Eliminazione cartella"), function() {
+        Remorse.itemAction(sourceItem, qsTr("Deleting folder"), function() {
             setPendingDelete(folderId, folderName);
             sendDeleteFolderRequest(folderId);
         });
@@ -180,8 +189,8 @@ Page {
         pendingCreateAttempt = attemptIndex;
         pendingCreateRequestExtra = "createChatFolder:" + attemptIndex + ":" + (new Date().getTime());
         createStatusText = attemptIndex === 0
-                ? qsTr("Creazione cartella in corso...")
-                : qsTr("Secondo tentativo di creazione in corso...");
+                ? qsTr("Creating folder...")
+                : qsTr("Retrying creation...");
         createStatusIsError = false;
         var seedChatId = firstVisibleChatId();
         var useSeedChat = attemptIndex === 0 && seedChatId !== 0;
@@ -223,18 +232,18 @@ Page {
         try {
             folderTitle = normalizedFolderTitle(rawTitle);
         } catch (error) {
-            createStatusText = qsTr("Errore interno durante la creazione cartella.");
+            createStatusText = qsTr("Internal error while creating folder.");
             createStatusIsError = true;
-            appNotification.show(qsTr("Errore interno durante la creazione cartella."));
+            appNotification.show(qsTr("Internal error while creating folder."));
             return false;
         }
         if (folderTitle.length === 0) {
             return false;
         }
         if (folderTitle.length > 12) {
-            createStatusText = qsTr("Il nome cartella deve avere massimo 12 caratteri.");
+            createStatusText = qsTr("Folder name must be at most 12 characters.");
             createStatusIsError = true;
-            appNotification.show(qsTr("Il nome cartella deve avere massimo 12 caratteri."));
+            appNotification.show(qsTr("Folder name must be at most 12 characters."));
             return false;
         }
         pendingFolderName = folderTitle;
@@ -257,9 +266,9 @@ Page {
             pendingCreateAttempt = -1;
             pendingCreateRequestExtra = "";
             createFolderResponseTimer.stop();
-            createStatusText = qsTr("Errore interno durante la creazione cartella.");
+            createStatusText = qsTr("Internal error while creating folder.");
             createStatusIsError = true;
-            appNotification.show(qsTr("Errore interno durante la creazione cartella."));
+            appNotification.show(qsTr("Internal error while creating folder."));
             return false;
         }
     }
@@ -287,9 +296,9 @@ Page {
             pendingCreateAttempt = -1;
             pendingCreateRequestExtra = "";
             createFolderResponseTimer.stop();
-            createStatusText = qsTr("Cartella creata.");
+            createStatusText = qsTr("Folder created.");
             createStatusIsError = false;
-            appNotification.show(qsTr("Cartella creata."));
+            appNotification.show(qsTr("Folder created."));
         }
         onOkReceived: {
             if (request.indexOf("deleteChatFolder:") === 0) {
@@ -298,7 +307,7 @@ Page {
                     var deletedFolderId = parseInt(deleteParts[1]);
                     setPendingDelete(deletedFolderId, "");
                     removeFolderFromModel(deletedFolderId);
-                    appNotification.show(qsTr("Cartella eliminata."));
+                    appNotification.show(qsTr("Folder deleted."));
                 }
                 return;
             }
@@ -314,13 +323,13 @@ Page {
                     var failedDeleteName = pendingDeleteFolderNames[failedDeleteFolderId] || "";
                     setPendingDelete(failedDeleteFolderId, "");
                     appNotification.show(failedDeleteName.length > 0
-                                         ? qsTr("Impossibile eliminare la cartella %1").arg(failedDeleteName)
-                                         : qsTr("Impossibile eliminare la cartella."));
+                                         ? qsTr("Unable to delete folder %1").arg(failedDeleteName)
+                                         : qsTr("Unable to delete folder."));
                 }
                 return;
             }
             if (extra === "reorderChatFolders") {
-                appNotification.show(qsTr("Impossibile aggiornare l'ordine delle cartelle."));
+                appNotification.show(qsTr("Unable to update folder order."));
                 return;
             }
             var isCreateError = waitingFolderCreation
@@ -340,12 +349,12 @@ Page {
                 pendingCreateRequestExtra = "";
                 createFolderResponseTimer.stop();
                 createStatusText = message && message.length > 0
-                        ? qsTr("Errore creazione cartella: %1").arg(message)
-                        : qsTr("Impossibile creare la cartella %1").arg(failedFolderName);
+                        ? qsTr("Error creating folder: %1").arg(message)
+                        : qsTr("Unable to create folder %1").arg(failedFolderName);
                 createStatusIsError = true;
                 appNotification.show(message && message.length > 0
-                                     ? qsTr("Impossibile creare la cartella %1: %2").arg(failedFolderName).arg(message)
-                                     : qsTr("Impossibile creare la cartella %1").arg(failedFolderName));
+                                     ? qsTr("Unable to create folder %1: %2").arg(failedFolderName).arg(message)
+                                     : qsTr("Unable to create folder %1").arg(failedFolderName));
                 return;
             }
         }
@@ -377,12 +386,12 @@ Page {
             pendingCreateAttempt = -1;
             pendingCreateRequestExtra = "";
             createStatusText = failedFolderName.length > 0
-                    ? qsTr("Impossibile creare la cartella %1").arg(failedFolderName)
-                    : qsTr("Impossibile creare la cartella.");
+                    ? qsTr("Unable to create folder %1").arg(failedFolderName)
+                    : qsTr("Unable to create folder.");
             createStatusIsError = true;
             appNotification.show(failedFolderName.length > 0
-                                 ? qsTr("Impossibile creare la cartella %1").arg(failedFolderName)
-                                 : qsTr("Impossibile creare la cartella."));
+                                 ? qsTr("Unable to create folder %1").arg(failedFolderName)
+                                 : qsTr("Unable to create folder."));
         }
     }
 
@@ -394,7 +403,7 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("Aggiorna")
+                text: qsTr("Refresh")
                 onClicked: {
                     refreshFolderModel();
                 }
@@ -405,7 +414,7 @@ Page {
             width: foldersListView.width
 
             PageHeader {
-                title: qsTr("Modifica cartelle")
+                title: qsTr("Edit folders")
             }
 
             ListItem {
@@ -432,13 +441,13 @@ Page {
                         verticalCenter: parent.verticalCenter
                     }
                     truncationMode: TruncationMode.Fade
-                    text: qsTr("Tutte")
+                    text: qsTr("All")
                     color: Theme.secondaryHighlightColor
                 }
             }
 
             SectionHeader {
-                text: qsTr("Cartelle personalizzate")
+                text: qsTr("Custom folders")
             }
         }
 
@@ -517,14 +526,14 @@ Page {
             spacing: Theme.paddingMedium
 
             SectionHeader {
-                text: qsTr("Crea nuova cartella")
+                text: qsTr("Create new folder")
             }
 
             TextField {
                 id: newFolderNameField
                 width: parent.width
-                label: qsTr("Nome cartella")
-                placeholderText: qsTr("Inserisci il nome della cartella")
+                label: qsTr("Folder name")
+                placeholderText: qsTr("Enter the folder name")
                 EnterKey.enabled: chatFoldersPage.normalizedFolderTitle(text).length > 0
                 EnterKey.iconSource: "image://theme/icon-m-enter-accept"
                 EnterKey.onClicked: {
@@ -536,7 +545,7 @@ Page {
                 width: parent.width - (2 * Theme.horizontalPageMargin)
                 anchors.horizontalCenter: parent.horizontalCenter
                 enabled: chatFoldersPage.normalizedFolderTitle(newFolderNameField.text).length > 0 && !waitingFolderCreation
-                text: qsTr("Crea cartella")
+                text: qsTr("Create folder")
                 onClicked: {
                     chatFoldersPage.createFolder(newFolderNameField.text, newFolderNameField);
                 }

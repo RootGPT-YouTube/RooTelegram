@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -88,9 +93,9 @@ public:
         RoleFlagMessageId = 0x02,
         RoleFlagMessageContentType = 0x04,
         RoleFlagMessageViewCount = 0x08,
-        RoleFlagMessageReactions = 0x16,
-        RoleFlagMessageAlbumEntryFilter = 0x32,
-        RoleFlagMessageAlbumMessageIds = 0x64
+        RoleFlagMessageReactions = 0x10,
+        RoleFlagMessageAlbumEntryFilter = 0x20,
+        RoleFlagMessageAlbumMessageIds = 0x40
     };
 
     MessageData(const QVariantMap &data, qlonglong msgid);
@@ -795,11 +800,24 @@ void ChatModel::handleMessageSendSucceeded(qlonglong messageId, qlonglong oldMes
         LOG("Message was successfully sent" << oldMessageId);
         const int pos = messageIndexMap.take(oldMessageId);
         MessageData* oldMessage = messages.at(pos);
+        const qlonglong oldAlbumId = oldMessage->messageData.value(MEDIA_ALBUM_ID).toLongLong();
         MessageData* newMessage = new MessageData(message, messageId);
         messages.replace(pos, newMessage);
         messageIndexMap.remove(oldMessageId);
         messageIndexMap.insert(messageId, pos);
-        // TODO when we support sending album messages, handle ID change in albumMessageMap
+        const qlonglong newAlbumId = newMessage->messageData.value(MEDIA_ALBUM_ID).toLongLong();
+        if (oldAlbumId != 0 && albumMessageMap.contains(oldAlbumId)) {
+            QHash<qlonglong, QVariantList>::iterator albumIt = albumMessageMap.find(oldAlbumId);
+            albumIt.value().removeAll(oldMessageId);
+            if (albumIt.value().isEmpty()) {
+                albumMessageMap.remove(oldAlbumId);
+            }
+        }
+        if (newAlbumId != 0) {
+            setMessagesAlbum(newMessage);
+        } else if (oldAlbumId != 0) {
+            updateAlbumMessages(oldAlbumId, true);
+        }
         const QVector<int> changedRoles(newMessage->diff(oldMessage));
         delete oldMessage;
         LOG("Message was replaced at index" << pos);
@@ -887,37 +905,38 @@ void ChatModel::handleMessageEditedUpdated(qlonglong chatId, qlonglong messageId
 void ChatModel::handleMessagesDeleted(qlonglong chatId, const QList<qlonglong> &messageIds)
 {
     LOG("Messages were deleted in a chat" << chatId);
-    if (chatId == this->chatId) {
-        const int count = messageIds.size();
-        LOG(count << "messages in this chat were deleted...");
-
-        int firstPosition = count, lastPosition = count;
-        for (int i = (count - 1); i > -1; i--) {
-            const int position = messageIndexMap.value(messageIds.at(i), -1);
-            if (position >= 0) {
-                // We found at least one message in our list that needs to be deleted
-                if (lastPosition == count) {
-                    lastPosition = position;
-                }
-                if (firstPosition == count) {
-                    firstPosition = position;
-                }
-                if (position < (firstPosition - 1)) {
-                    // Some gap in between, can remove previous range and reset positions
-                    removeRange(firstPosition, lastPosition);
-                    firstPosition = lastPosition = position;
-                } else {
-                    // No gap in between, extend the range and continue loop
-                    firstPosition = position;
-                }
-            }
-        }
-        // After all elements have been processed, there may be one last range to remove
-        // But only if we found at least one item to remove
-        if (firstPosition != count && lastPosition != count) {
-            removeRange(firstPosition, lastPosition);
+    if (chatId != this->chatId) {
+        return;
+    }
+    QList<int> positions;
+    for (int i = 0; i < messageIds.size(); i++) {
+        const int position = messageIndexMap.value(messageIds.at(i), -1);
+        if (position >= 0) {
+            positions.append(position);
         }
     }
+    if (positions.isEmpty()) {
+        LOG("No messages to delete in current view");
+        return;
+    }
+    LOG(positions.size() << "messages in this chat to remove from view");
+    std::sort(positions.begin(), positions.end(), std::greater<int>());
+    int rangeEnd = positions.first();
+    int rangeStart = rangeEnd;
+    for (int i = 1; i < positions.size(); i++) {
+        const int p = positions.at(i);
+        if (p == rangeStart - 1) {
+            rangeStart = p;
+        } else if (p == rangeStart) {
+            // duplicate, skip
+            continue;
+        } else {
+            removeRange(rangeStart, rangeEnd);
+            rangeEnd = p;
+            rangeStart = p;
+        }
+    }
+    removeRange(rangeStart, rangeEnd);
 }
 
 
@@ -1077,7 +1096,7 @@ void ChatModel::setMessagesAlbum(const QList<MessageData *> newMessages)
 void ChatModel::setMessagesAlbum(MessageData *message)
 {
     qlonglong albumId = message->messageData.value(MEDIA_ALBUM_ID).toLongLong();
-    if (albumId > 0 && (message->messageContentType != "messagePhoto" || message->messageContentType != "messageVideo")) {
+    if (albumId != 0 && (message->messageContentType == "messagePhoto" || message->messageContentType == "messageVideo")) {
         qlonglong messageId = message->messageId;
 
         if(albumMessageMap.contains(albumId)) {

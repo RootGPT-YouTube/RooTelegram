@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,7 +45,40 @@ function getUserName(userInformation) {
     return ((userInformation.first_name || "") + " " + (userInformation.last_name || "")).trim();
 }
 
-function getMessageText(message, simple, currentUserId, ignoreEntities) {
+// Censura plain-text degli spoiler per i preview (chat list, notifiche): sostituisce
+// la sostringa coperta da textEntityTypeSpoiler con blocchi unicode U+2588 della
+// stessa lunghezza, così l'utente non legge il contenuto nel preview ma percepisce
+// che lì c'è uno spoiler.
+function censorSpoilersPlain(formattedText) {
+    if (!formattedText || !formattedText.text) {
+        return formattedText ? formattedText.text || "" : "";
+    }
+    var entities = formattedText.entities || [];
+    if (entities.length === 0) {
+        return formattedText.text;
+    }
+    var spoilerEntities = [];
+    for (var i = 0; i < entities.length; i++) {
+        if (entities[i] && entities[i].type && entities[i].type['@type'] === "textEntityTypeSpoiler") {
+            spoilerEntities.push(entities[i]);
+        }
+    }
+    if (spoilerEntities.length === 0) {
+        return formattedText.text;
+    }
+    // Process in reverse order to keep offsets stable.
+    spoilerEntities.sort(function(a, b) { return b.offset - a.offset; });
+    var result = formattedText.text;
+    for (var k = 0; k < spoilerEntities.length; k++) {
+        var sp = spoilerEntities[k];
+        var blocks = "";
+        for (var j = 0; j < sp.length; j++) { blocks += "█"; }
+        result = result.substring(0, sp.offset) + blocks + result.substring(sp.offset + sp.length);
+    }
+    return result;
+}
+
+function getMessageText(message, simple, currentUserId, ignoreEntities, revealedSpoilers) {
 
     var myself = false;
     if ( message['@type'] !== "sponsoredMessage" ) {
@@ -50,9 +88,9 @@ function getMessageText(message, simple, currentUserId, ignoreEntities) {
     switch(message.content['@type']) {
     case 'messageText':
         if (simple) {
-            return message.content.text.text;
+            return censorSpoilersPlain(message.content.text);
         } else {
-            return enhanceMessageText(message.content.text, ignoreEntities);
+            return enhanceMessageText(message.content.text, ignoreEntities, revealedSpoilers);
         }
     case 'messageSticker':
         return simple ? message.content.sticker.emoji : ""
@@ -60,13 +98,13 @@ function getMessageText(message, simple, currentUserId, ignoreEntities) {
         return simple ? message.content.animated_emoji.sticker.emoji : ""
     case 'messagePhoto':
         if (message.content.caption.text !== "") {
-            return simple ? qsTr("Picture: %1").arg(message.content.caption.text) : enhanceMessageText(message.content.caption, ignoreEntities)
+            return simple ? qsTr("Picture: %1").arg(censorSpoilersPlain(message.content.caption)) : enhanceMessageText(message.content.caption, ignoreEntities, revealedSpoilers)
         } else {
             return simple ? (myself ? qsTr("sent a picture", "myself") : qsTr("sent a picture")) : "";
         }
     case 'messageVideo':
         if (message.content.caption.text !== "") {
-            return simple ? qsTr("Video: %1").arg(message.content.caption.text) : enhanceMessageText(message.content.caption, ignoreEntities)
+            return simple ? qsTr("Video: %1").arg(censorSpoilersPlain(message.content.caption)) : enhanceMessageText(message.content.caption, ignoreEntities, revealedSpoilers)
         } else {
             return simple ? (myself ? qsTr("sent a video", "myself") : qsTr("sent a video")) : "";
         }
@@ -74,25 +112,25 @@ function getMessageText(message, simple, currentUserId, ignoreEntities) {
         return simple ? (myself ? qsTr("sent a video note", "myself") : qsTr("sent a video note")) : "";
     case 'messageAnimation':
         if (message.content.caption.text !== "") {
-            return simple ? qsTr("Animation: %1").arg(message.content.caption.text) : enhanceMessageText(message.content.caption, ignoreEntities)
+            return simple ? qsTr("Animation: %1").arg(censorSpoilersPlain(message.content.caption)) : enhanceMessageText(message.content.caption, ignoreEntities, revealedSpoilers)
         } else {
             return simple ? (myself ? qsTr("sent an animation", "myself") : qsTr("sent an animation")) : "";
         }
     case 'messageAudio':
         if (message.content.caption.text !== "") {
-            return simple ? qsTr("Audio: %1").arg(message.content.caption.text) : enhanceMessageText(message.content.caption, ignoreEntities)
+            return simple ? qsTr("Audio: %1").arg(censorSpoilersPlain(message.content.caption)) : enhanceMessageText(message.content.caption, ignoreEntities, revealedSpoilers)
         } else {
             return simple ? (myself ? qsTr("sent an audio", "myself") : qsTr("sent an audio")) : "";
         }
     case 'messageVoiceNote':
         if (message.content.caption.text !== "") {
-            return simple ? qsTr("Voice Note: %1").arg(message.content.caption.text) : enhanceMessageText(message.content.caption, ignoreEntities)
+            return simple ? qsTr("Voice Note: %1").arg(censorSpoilersPlain(message.content.caption)) : enhanceMessageText(message.content.caption, ignoreEntities, revealedSpoilers)
         } else {
             return simple ? (myself ? qsTr("sent a voice note", "myself") : qsTr("sent a voice note")) : "";
         }
     case 'messageDocument':
         if (message.content.document.file_name !== "") {
-            return simple ? qsTr("Document: %1").arg(message.content.document.file_name) : (message.content.caption.text !== "" ? enhanceMessageText(message.content.caption, ignoreEntities) : "").trim();
+            return simple ? qsTr("Document: %1").arg(message.content.document.file_name) : (message.content.caption.text !== "" ? enhanceMessageText(message.content.caption, ignoreEntities, revealedSpoilers) : "").trim();
         } else {
             return simple ? (myself ? qsTr("sent a document", "myself") : qsTr("sent a document")) : "";
         }
@@ -167,6 +205,18 @@ function getMessageText(message, simple, currentUserId, ignoreEntities) {
             return myself ? qsTr("cancelled a call", "myself") : qsTr("missed a call");
         }
         return myself ? qsTr("started a call", "myself") : qsTr("started a call");
+    case 'messageForumTopicCreated':
+        return qsTr("created topic: %1").arg(message.content.name || "");
+    case 'messageForumTopicEdited':
+        var editedName = message.content.name || "";
+        if (editedName) return qsTr("renamed topic to: %1").arg(editedName);
+        if (message.content.edit_icon_custom_emoji !== undefined) return qsTr("edited topic icon");
+        if (message.content.is_closed !== undefined) return message.content.is_closed ? qsTr("closed topic") : qsTr("reopened topic");
+        return qsTr("edited topic");
+    case 'messageForumTopicIsClosedToggled':
+        return message.content.is_closed ? qsTr("closed topic") : qsTr("reopened topic");
+    case 'messageForumTopicIsHiddenToggled':
+        return message.content.is_hidden ? qsTr("hid topic") : qsTr("unhid topic");
     case 'messageUnsupported':
         return myself ? qsTr("sent an unsupported message", "myself") : qsTr("sent an unsupported message");
     default:
@@ -271,7 +321,7 @@ function getCustomEmojiRenderSize() {
     var baseSize = (Silica.Theme && Silica.Theme.fontSizeMedium) ? Silica.Theme.fontSizeMedium : 18;
     return Math.max(18, Math.round(baseSize * 1.15));
 }
-function enhanceMessageText(formattedText, ignoreEntities) {
+function enhanceMessageText(formattedText, ignoreEntities, revealedSpoilers) {
 
     var messageInsertions = [];
     var messageText = formattedText.text;
@@ -283,6 +333,7 @@ function enhanceMessageText(formattedText, ignoreEntities) {
     if (entities.length === 0) {
         return messageText.replace(ampRegExp, "&amp;").replace(ltRegExp, "&lt;").replace(gtRegExp, "&gt;").replace(rawNewLineRegExp, "<br>");
     }
+    var revealed = revealedSpoilers || {};
     for (var i = 0; i < entities.length; i++) {
         entity = entities[i];
         if (entity['@type'] !== "textEntity") {
@@ -342,6 +393,21 @@ function enhanceMessageText(formattedText, ignoreEntities) {
                 messageInsertions.push(
                     { offset: entity.offset, insertionString: "<span style=\"text-decoration: line-through;\">", removeLength: 0 },
                     { offset: (entity.offset + entity.length), insertionString: "</span>", removeLength: 0 }
+                );
+            break;
+            case "textEntityTypeSpoiler":
+                // Tap-to-reveal: ogni spoiler è un link `rtspoiler://OFFSET/LENGTH`.
+                // Quando MessageListViewItem riceve onLinkActivated con prefisso
+                // `rtspoiler://` aggiunge la chiave a revealedSpoilers e rinnova
+                // il binding del testo. Se rivelato, render senza l'hide.
+                var spoilerKey = entity.offset + "-" + entity.length;
+                if (revealed[spoilerKey]) {
+                    // Niente da fare: render normale del testo originario.
+                    break;
+                }
+                messageInsertions.push(
+                    { offset: entity.offset, insertionString: "<a href=\"rtspoiler://" + entity.offset + "/" + entity.length + "\"><span style=\"background-color: #888888; color: #888888;\">", removeLength: 0 },
+                    { offset: (entity.offset + entity.length), insertionString: "</span></a>", removeLength: 0 }
                 );
             break;
             case "textEntityTypeMention":
@@ -579,4 +645,67 @@ function getMessagesNeededForwardPermissions(messages) {
 
 function isWidescreen(appWindow) {
     return (appWindow.deviceOrientation & Silica.Orientation.LandscapeMask) || Silica.Screen.sizeCategory === Silica.Screen.Large || Silica.Screen.sizeCategory === Silica.Screen.ExtraLarge
+}
+
+// --- Auto-download override helpers ---------------------------------------
+//
+// Telegram's per-network-type auto-download settings. We use these to turn
+// off video preload (max_video_file_size=0, preload_large_videos=false)
+// across all network types when the user enables the "Disabilita
+// precaricamento video" toggle, and to restore sensible defaults when they
+// turn it back off. Photos/audio are left active so previews still work.
+
+function _autoDownloadNoVideoSettings() {
+    return {
+        "@type": "autoDownloadSettings",
+        "is_auto_download_enabled": true,
+        "max_photo_file_size": 10 * 1024 * 1024,
+        "max_video_file_size": 0,
+        "max_other_file_size": 3 * 1024 * 1024,
+        "video_upload_bitrate": 0,
+        "preload_large_videos": false,
+        "preload_next_audio": true,
+        "use_less_data_for_calls": false
+    };
+}
+
+function _autoDownloadDefaultSettings(maxVideoSize, preloadLargeVideos) {
+    return {
+        "@type": "autoDownloadSettings",
+        "is_auto_download_enabled": true,
+        "max_photo_file_size": 10 * 1024 * 1024,
+        "max_video_file_size": maxVideoSize,
+        "max_other_file_size": 3 * 1024 * 1024,
+        "video_upload_bitrate": 0,
+        "preload_large_videos": preloadLargeVideos,
+        "preload_next_audio": true,
+        "use_less_data_for_calls": false
+    };
+}
+
+function _sendAutoDownloadFor(typeTag, settings) {
+    tdLibWrapper.sendRequest({
+        "@type": "setAutoDownloadSettings",
+        "settings": settings,
+        "type": { "@type": typeTag }
+    });
+}
+
+function applyVideoPreloadOverride() {
+    var s = _autoDownloadNoVideoSettings();
+    _sendAutoDownloadFor("networkTypeMobile", s);
+    _sendAutoDownloadFor("networkTypeMobileRoaming", s);
+    _sendAutoDownloadFor("networkTypeWiFi", s);
+    _sendAutoDownloadFor("networkTypeOther", s);
+}
+
+function restoreAutoDownloadDefaults() {
+    // Approximation of Telegram's "low" preset for cellular and "high" preset
+    // for wifi. The user can fine-tune later from the official client.
+    var low = _autoDownloadDefaultSettings(10 * 1024 * 1024, false);
+    var high = _autoDownloadDefaultSettings(15 * 1024 * 1024, true);
+    _sendAutoDownloadFor("networkTypeMobile", low);
+    _sendAutoDownloadFor("networkTypeMobileRoaming", low);
+    _sendAutoDownloadFor("networkTypeWiFi", high);
+    _sendAutoDownloadFor("networkTypeOther", high);
 }

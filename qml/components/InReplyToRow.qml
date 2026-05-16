@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -73,7 +78,7 @@ Row {
                 font.pixelSize: Theme.fontSizeExtraSmall
                 font.weight: Font.ExtraBold
                 maximumLineCount: 1
-                truncationMode: TruncationMode.Fade
+                truncationMode: TruncationMode.Elide
                 textFormat: Text.StyledText
                 horizontalAlignment: Text.AlignLeft
             }
@@ -82,8 +87,8 @@ Row {
                 id: inReplyToMessageText
                 font.pixelSize: Theme.fontSizeExtraSmall
                 width: parent.width
-                textFormat: Text.RichText
-                truncationMode: TruncationMode.Fade
+                textFormat: Text.StyledText
+                truncationMode: TruncationMode.Elide
                 maximumLineCount: 1
                 linkColor: Theme.highlightColor
                 onLinkActivated: {

@@ -27,21 +27,44 @@ Item {
     readonly property alias fileInformation: tdLibImage.fileInformation
     readonly property alias image: tdLibImage
 
-    onWidthChanged: setImageFile()
-    onPhotoChanged: setImageFile()
+    // Debounce window before the photo is handed to the Image element. On
+    // photo-heavy channels (Durov & co.) a fast scroll creates and destroys
+    // many MessagePhoto delegates within a few hundred ms; without this delay
+    // each one would kick off a JPEG decode + GPU upload even though it
+    // disappears before the user sees it, saturating the render thread and
+    // freezing the UI for seconds at a time. The minithumbnail stays on
+    // screen while the timer is pending.
+    onWidthChanged: setImageFileDeferred()
+    onPhotoChanged: setImageFileDeferred()
+
+    function setImageFileDeferred() {
+        setImageFileTimer.restart();
+    }
+
+    Timer {
+        id: setImageFileTimer
+        interval: 250
+        repeat: false
+        onTriggered: setImageFile()
+    }
 
     function setImageFile() {
-        if (photo) {
-            var photoSize;
-            for (var i = 0; i < photo.sizes.length; i++) {
-                photoSize = photo.sizes[i].photo;
-                if (photo.sizes[i].width >= width) {
-                    break;
-                }
+        // Guard against being called during teardown / incubation cancellation,
+        // when `photo` may still be a live alias but `tdLibImage` / its
+        // `fileInformation` are no longer assignable.
+        if (!photo || !photo.sizes || !tdLibImage) {
+            return;
+        }
+        var photoSize;
+        for (var i = 0; i < photo.sizes.length; i++) {
+            photoSize = photo.sizes[i].photo;
+            if (photo.sizes[i].width >= width) {
+                break;
             }
-            if (photoSize && photoSize.id !== tdLibImage.fileInformation.id) {
-                tdLibImage.fileInformation = photoSize;
-            }
+        }
+        var currentInfo = tdLibImage.fileInformation;
+        if (photoSize && (!currentInfo || photoSize.id !== currentInfo.id)) {
+            tdLibImage.fileInformation = photoSize;
         }
     }
 
@@ -60,9 +83,8 @@ Item {
         id: tdLibImage
         width: parent.width //don't use anchors here for easier custom scaling
         height: parent.height
-        cache: false
         highlighted: parent.highlighted
     }
 
-    Component.onCompleted: setImageFile()
+    Component.onCompleted: setImageFileDeferred()
 }

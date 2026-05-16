@@ -4,7 +4,6 @@ X-Nemo-Application-Type=generic
 Icon=harbour-rootelegram
 Exec=harbour-rootelegram
 Name=RooTelegram
-X-DBusActivatable=true
 X-Share-Methods=rootelegram_share;
 
 [X-Share Method rootelegram_share]
@@ -15,6 +14,6 @@ SupportsMultipleFiles=yes
 
 [X-Sailjail]
 Permissions=Audio;Contacts;Documents;Downloads;Internet;Location;MediaIndexing;Microphone;Music;Pictures;Privileged;PublicDir;RemovableMedia;UserDirs;Videos
-OrganizationName=de.ygriega
+OrganizationName=com.github.RootGPT_YouTube
 ApplicationName=rootelegram
 ExecDBus=harbour-rootelegram --daemon

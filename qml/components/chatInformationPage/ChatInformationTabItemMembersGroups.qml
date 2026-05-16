@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,6 +37,199 @@ ChatInformationTabItemBase {
     loadingVisible: loading && membersView.count === 0
 
     property var chatPartnerCommonGroupsIds: ([]);
+    property var processingByUserId: ({})
+    readonly property var ownGroupStatus: chatInformationPage.groupInformation && chatInformationPage.groupInformation.status ? chatInformationPage.groupInformation.status : ({})
+    readonly property bool canRestrictMembers: ownGroupStatus["@type"] === "chatMemberStatusCreator" || getStatusFlag(ownGroupStatus, "can_restrict_members")
+    readonly property bool canPromoteMembers: ownGroupStatus["@type"] === "chatMemberStatusCreator" || getStatusFlag(ownGroupStatus, "can_promote_members")
+
+    function getStatusFlag(statusData, flagName) {
+        var status = statusData || {}
+        if (!flagName) {
+            return false
+        }
+        if (typeof status[flagName] === "boolean") {
+            return status[flagName]
+        }
+        var rights = status.rights || {}
+        if (typeof rights[flagName] === "boolean") {
+            return rights[flagName]
+        }
+        var permissions = status.permissions || {}
+        if (typeof permissions[flagName] === "boolean") {
+            return permissions[flagName]
+        }
+        return false
+    }
+
+    function getMemberUserId(memberData) {
+        if (!memberData || !memberData.member_id) {
+            return 0
+        }
+        return Number(memberData.member_id.user_id || 0)
+    }
+
+    function setProcessing(userId, processing) {
+        var key = userId.toString()
+        var state = {}
+        for (var entry in processingByUserId) {
+            state[entry] = processingByUserId[entry]
+        }
+        if (processing) {
+            state[key] = true
+        } else {
+            delete state[key]
+        }
+        processingByUserId = state
+    }
+
+    function isProcessing(userId) {
+        return !!processingByUserId[userId.toString()]
+    }
+
+    function findMemberIndexByUserId(userId) {
+        for (var i = 0; i < pageContent.membersList.count; i++) {
+            var member = pageContent.membersList.get(i)
+            if (member && member.member_id && Number(member.member_id.user_id || 0) === Number(userId)) {
+                return i
+            }
+        }
+        return -1
+    }
+
+    function getMemberEntryByUserId(userId) {
+        var index = findMemberIndexByUserId(userId)
+        return index > -1 ? pageContent.membersList.get(index) : null
+    }
+
+    function canManageTarget(memberData) {
+        if (!chatInformationPage.isSuperGroup || chatInformationPage.isChannel) {
+            return false
+        }
+        var targetUserId = getMemberUserId(memberData)
+        if (!targetUserId || targetUserId === chatInformationPage.myUserId) {
+            return false
+        }
+        var targetStatus = memberData && memberData.status ? memberData.status : {}
+        var targetStatusType = targetStatus["@type"] || ""
+        if (targetStatusType === "chatMemberStatusCreator") {
+            return false
+        }
+        if (targetStatusType === "chatMemberStatusAdministrator" && !getStatusFlag(targetStatus, "can_be_edited") && ownGroupStatus["@type"] !== "chatMemberStatusCreator") {
+            return false
+        }
+        return true
+    }
+
+    function canPromoteTarget(memberData) {
+        if (!canPromoteMembers || !canManageTarget(memberData)) {
+            return false
+        }
+        var targetStatusType = memberData && memberData.status ? (memberData.status["@type"] || "") : ""
+        return targetStatusType !== "chatMemberStatusCreator"
+                && targetStatusType !== "chatMemberStatusAdministrator"
+                && targetStatusType !== "chatMemberStatusBanned"
+    }
+
+    function canRemoveTarget(memberData) {
+        if (!canRestrictMembers || !canManageTarget(memberData)) {
+            return false
+        }
+        var targetStatusType = memberData && memberData.status ? (memberData.status["@type"] || "") : ""
+        return targetStatusType !== "chatMemberStatusBanned" && targetStatusType !== "chatMemberStatusLeft"
+    }
+
+    function buildAdministratorRights() {
+        return {
+            "@type": "chatAdministratorRights",
+            "can_manage_chat": true,
+            "can_change_info": false,
+            "can_post_messages": false,
+            "can_edit_messages": false,
+            "can_delete_messages": false,
+            "can_invite_users": true,
+            "can_restrict_members": false,
+            "can_pin_messages": true,
+            "can_manage_topics": true,
+            "can_promote_members": false,
+            "can_manage_video_chats": true,
+            "can_post_stories": false,
+            "can_edit_stories": false,
+            "can_delete_stories": false,
+            "is_anonymous": false
+        }
+    }
+
+    function buildAdministratorStatus() {
+        var rights = buildAdministratorRights()
+        return {
+            "@type": "chatMemberStatusAdministrator",
+            "custom_title": "",
+            "can_be_edited": true,
+            "rights": rights,
+            "can_manage_chat": rights.can_manage_chat,
+            "can_change_info": rights.can_change_info,
+            "can_post_messages": rights.can_post_messages,
+            "can_edit_messages": rights.can_edit_messages,
+            "can_delete_messages": rights.can_delete_messages,
+            "can_invite_users": rights.can_invite_users,
+            "can_restrict_members": rights.can_restrict_members,
+            "can_pin_messages": rights.can_pin_messages,
+            "can_manage_topics": rights.can_manage_topics,
+            "can_promote_members": rights.can_promote_members,
+            "can_manage_video_chats": rights.can_manage_video_chats,
+            "is_anonymous": rights.is_anonymous
+        }
+    }
+
+    function refreshGroupInformation() {
+        if (!chatInformationPage.isSuperGroup || !chatInformationPage.chatPartnerGroupId) {
+            return
+        }
+        tdLibWrapper.sendRequest({
+            "@type": "getSupergroup",
+            "supergroup_id": chatInformationPage.chatPartnerGroupId
+        })
+        tdLibWrapper.getGroupFullInfo(chatInformationPage.chatPartnerGroupId, true)
+    }
+
+    function promoteMemberToAdmin(userId) {
+        var memberEntry = getMemberEntryByUserId(userId)
+        if (!canPromoteTarget(memberEntry) || isProcessing(userId)) {
+            return
+        }
+        setProcessing(userId, true)
+        tdLibWrapper.sendRequest({
+            "@type": "setChatMemberStatus",
+            "chat_id": chatInformationPage.chatInformation.id,
+            "member_id": {
+                "@type": "messageSenderUser",
+                "user_id": userId
+            },
+            "status": buildAdministratorStatus(),
+            "@extra": "chatMemberAction:promote:" + chatInformationPage.chatInformation.id + ":" + userId
+        })
+    }
+
+    function removeMemberFromGroup(userId) {
+        var memberEntry = getMemberEntryByUserId(userId)
+        if (!canRemoveTarget(memberEntry) || isProcessing(userId)) {
+            return
+        }
+        setProcessing(userId, true)
+        tdLibWrapper.sendRequest({
+            "@type": "setChatMemberStatus",
+            "chat_id": chatInformationPage.chatInformation.id,
+            "member_id": {
+                "@type": "messageSenderUser",
+                "user_id": userId
+            },
+            "status": {
+                "@type": "chatMemberStatusBanned",
+                "banned_until_date": 0
+            },
+            "@extra": "chatMemberAction:remove:" + chatInformationPage.chatInformation.id + ":" + userId
+        })
+    }
 
     SilicaListView {
         id: membersView
@@ -71,10 +269,37 @@ ChatInformationTabItemBase {
             text: (chatInformationPage.isPrivateChat || chatInformationPage.isSecretChat) ? qsTr("You don't have any groups in common with this user.") : ( chatInformationPage.isChannel ? qsTr("Channel members are anonymous.") : qsTr("This group is empty.") )
         }
         delegate: PhotoTextsListItem {
+            id: memberDelegate
             pictureThumbnail {
                 photoData: user.profile_photo ? user.profile_photo.small : null
             }
             width: parent.width
+            property int memberUserId: Number(member_id && member_id.user_id ? member_id.user_id : 0)
+            property var memberEntry: ({ "member_id": member_id, "status": status })
+            property bool actionInProgress: tabBase.isProcessing(memberUserId)
+            property bool canPromoteCurrent: tabBase.canPromoteTarget(memberEntry)
+            property bool canRemoveCurrent: tabBase.canRemoveTarget(memberEntry)
+            openMenuOnPressAndHold: chatInformationPage.isSuperGroup && !chatInformationPage.isChannel && (canPromoteCurrent || canRemoveCurrent)
+            menu: ContextMenu {
+                MenuItem {
+                    visible: memberDelegate.canPromoteCurrent
+                    text: memberDelegate.actionInProgress ? qsTr("Processing…") : qsTr("Promote to admin")
+                    enabled: !memberDelegate.actionInProgress
+                    onClicked: {
+                        tabBase.promoteMemberToAdmin(memberDelegate.memberUserId)
+                    }
+                }
+                MenuItem {
+                    visible: memberDelegate.canRemoveCurrent
+                    text: memberDelegate.actionInProgress ? qsTr("Processing…") : qsTr("Remove from group")
+                    enabled: !memberDelegate.actionInProgress
+                    onClicked: {
+                        Remorse.itemAction(memberDelegate, qsTr("Removing user"), function() {
+                            tabBase.removeMemberFromGroup(memberDelegate.memberUserId)
+                        })
+                    }
+                }
+            }
 
             // chat title
             primaryText.text: Emoji.emojify(Functions.getUserName(user), primaryText.font.pixelSize)
@@ -82,8 +307,8 @@ ChatInformationTabItemBase {
             prologSecondaryText.text: "@"+(user.username ? user.username : member_id.user_id) + (member_id.user_id === chatInformationPage.myUserId ? " " + qsTr("You") : "")
             secondaryText {
                 horizontalAlignment: Text.AlignRight
-                property string statusText: Functions.getChatMemberStatusText(model.status["@type"])
-                property string customText: model.status.custom_title ? Emoji.emojify(model.status.custom_title, secondaryText.font.pixelSize) : ""
+                property string statusText: Functions.getChatMemberStatusText(model.status ? model.status["@type"] : "")
+                property string customText: (model.status && model.status.custom_title) ? Emoji.emojify(model.status.custom_title, secondaryText.font.pixelSize) : ""
                 text: (statusText !== "" && customText !== "") ? statusText + ", " + customText : statusText + customText
             }
             tertiaryText {
@@ -204,6 +429,52 @@ ChatInformationTabItemBase {
                 // if we set it directly, the views start scrolling
                 loadedTimer.start();
             }
+        }
+        onOkReceived: {
+            if (!request || request.indexOf("chatMemberAction:") !== 0) {
+                return
+            }
+            var parts = request.split(":")
+            if (parts.length !== 4 || parts[2].toString() !== chatInformationPage.chatInformation.id.toString()) {
+                return
+            }
+            var action = parts[1]
+            var userId = Number(parts[3] || 0)
+            if (!userId) {
+                return
+            }
+            setProcessing(userId, false)
+            var memberIndex = findMemberIndexByUserId(userId)
+            if (action === "remove") {
+                if (memberIndex > -1) {
+                    pageContent.membersList.remove(memberIndex)
+                }
+                var currentMemberCount = Number(chatInformationPage.groupInformation.member_count || 0)
+                if (!isNaN(currentMemberCount) && currentMemberCount > 0) {
+                    chatInformationPage.groupInformation.member_count = currentMemberCount - 1
+                    updateGroupStatusText()
+                }
+                appNotification.show(qsTr("Member removed from group."))
+                refreshGroupInformation()
+                return
+            }
+            if (action === "promote") {
+                if (memberIndex > -1) {
+                    pageContent.membersList.setProperty(memberIndex, "status", buildAdministratorStatus())
+                }
+                appNotification.show(qsTr("Member promoted to administrator."))
+                refreshGroupInformation()
+            }
+        }
+        onErrorReceived: {
+            if (!extra || extra.indexOf("chatMemberAction:") !== 0) {
+                return
+            }
+            var parts = extra.split(":")
+            if (parts.length === 4 && parts[2].toString() === chatInformationPage.chatInformation.id.toString()) {
+                setProcessing(parts[3], false)
+            }
+            Functions.handleErrorMessage(code, message)
         }
     }
     Connections {

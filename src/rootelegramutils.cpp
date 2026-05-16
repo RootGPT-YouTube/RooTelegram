@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020-21 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -101,6 +106,42 @@ RooTelegramUtils::~RooTelegramUtils()
     this->cleanUp();
 }
 
+// Sostituisce le sostringhe coperte da textEntityTypeSpoiler con blocchi unicode
+// U+2588 della stessa lunghezza: il preview (notifica push, riga ultimo messaggio)
+// non deve mostrare in chiaro il contenuto marcato come spoiler.
+static QString censorSpoilersPlain(const QVariantMap &formattedText)
+{
+    QString text = formattedText.value("text").toString();
+    const QVariantList entities = formattedText.value("entities").toList();
+    if (text.isEmpty() || entities.isEmpty()) {
+        return text;
+    }
+    QList<QPair<int, int>> spoilers; // (offset, length)
+    for (const QVariant &entityVariant : entities) {
+        const QVariantMap entity = entityVariant.toMap();
+        if (entity.value("type").toMap().value("@type").toString() != QStringLiteral("textEntityTypeSpoiler")) {
+            continue;
+        }
+        const int offset = entity.value("offset").toInt();
+        const int length = entity.value("length").toInt();
+        if (offset < 0 || length <= 0 || (offset + length) > text.length()) {
+            continue;
+        }
+        spoilers.append(qMakePair(offset, length));
+    }
+    if (spoilers.isEmpty()) {
+        return text;
+    }
+    // Reverse order to keep offsets stable as we replace.
+    std::sort(spoilers.begin(), spoilers.end(), [](const QPair<int, int> &a, const QPair<int, int> &b) {
+        return a.first > b.first;
+    });
+    for (const QPair<int, int> &sp : spoilers) {
+        text.replace(sp.first, sp.second, QString(sp.second, QChar(0x2588)));
+    }
+    return text;
+}
+
 QString RooTelegramUtils::getMessageShortText(TDLibWrapper *tdLibWrapper, const QVariantMap &messageContent, const bool isChannel, const qlonglong currentUserId, const QVariantMap &messageSender)
 {
     if (messageContent.isEmpty()) {
@@ -113,7 +154,7 @@ QString RooTelegramUtils::getMessageShortText(TDLibWrapper *tdLibWrapper, const 
     const bool myself = !isChannel && (messageSenderType == MESSAGE_SENDER_TYPE_USER && messageSenderUserId == currentUserId);
 
     if (contentType == MESSAGE_CONTENT_TYPE_TEXT) {
-        return messageContent.value(TEXT).toMap().value(TEXT).toString();
+        return censorSpoilersPlain(messageContent.value(TEXT).toMap());
     }
     if (contentType == MESSAGE_CONTENT_TYPE_STICKER) {
         return messageContent.value(STICKER).toMap().value(EMOJI).toString();

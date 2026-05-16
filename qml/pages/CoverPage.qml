@@ -28,13 +28,25 @@ CoverBackground {
 
     property int unreadMessages: 0
     property int unreadChats: 0
+    property int privateUnreadMessages: 0
+    property int privateUnreadChats: 0
+    readonly property bool hideGroupChannelUnread: appSettings.coverHideGroupChannelUnread
+    readonly property int displayedUnreadMessages: hideGroupChannelUnread ? privateUnreadMessages : unreadMessages
+    readonly property int displayedUnreadChats: hideGroupChannelUnread ? privateUnreadChats : unreadChats
     readonly property bool authenticated: tdLibWrapper.authorizationState === TelegramAPI.AuthorizationReady
     property int connectionState: TelegramAPI.WaitingForNetwork
 
+    function refreshPrivateUnreadCounts() {
+        var counts = chatListModel.getPrivateUnreadCounts();
+        privateUnreadMessages = counts.unread_messages || 0;
+        privateUnreadChats = counts.unread_chats || 0;
+        setUnreadInfoText();
+    }
+
     function setUnreadInfoText() {
 
-        unreadMessagesText.text = qsTr("unread messages", "", coverPage.unreadMessages);
-        unreadChatsText.text = qsTr("chats", "", coverPage.unreadChats)
+        unreadMessagesText.text = qsTr("unread messages", "", coverPage.displayedUnreadMessages);
+        unreadChatsText.text = qsTr("chats", "", coverPage.displayedUnreadChats)
 
         switch (coverPage.connectionState) {
         case TelegramAPI.WaitingForNetwork:
@@ -59,7 +71,7 @@ CoverBackground {
         coverPage.connectionState = tdLibWrapper.getConnectionState();
         coverPage.unreadMessages = tdLibWrapper.getUnreadMessageInformation().unread_count || 0;
         coverPage.unreadChats = tdLibWrapper.getUnreadChatInformation().unread_count || 0;
-        setUnreadInfoText();
+        refreshPrivateUnreadCounts();
     }
 
     Connections {
@@ -88,6 +100,12 @@ CoverBackground {
             coverPage.unreadChats = unreadChatsCount;
             setUnreadInfoText();
         }
+        onPrivateUnreadStateChanged: refreshPrivateUnreadCounts()
+    }
+
+    Connections {
+        target: appSettings
+        onCoverHideGroupChannelUnreadChanged: setUnreadInfoText()
     }
 
     BackgroundImage {
@@ -117,7 +135,7 @@ CoverBackground {
                 id: unreadMessagesCountText
                 font.pixelSize: Theme.fontSizeHuge
                 color: Theme.primaryColor
-                text: Functions.getShortenedCount(coverPage.unreadMessages)
+                text: Functions.getShortenedCount(coverPage.displayedUnreadMessages)
             }
             Label {
                 id: unreadMessagesText
@@ -133,7 +151,7 @@ CoverBackground {
         Row {
             width: parent.width
             spacing: Theme.paddingMedium
-            visible: coverPage.authenticated && coverPage.unreadMessages > 1
+            visible: coverPage.authenticated && coverPage.displayedUnreadMessages > 1
             Text {
                 id: inText
                 font.pixelSize: Theme.fontSizeExtraSmall
@@ -145,7 +163,7 @@ CoverBackground {
                 id: unreadChatsCountText
                 font.pixelSize: Theme.fontSizeHuge
                 color: Theme.primaryColor
-                text: Functions.getShortenedCount(coverPage.unreadChats)
+                text: Functions.getShortenedCount(coverPage.displayedUnreadChats)
             }
             Text {
                 id: unreadChatsText

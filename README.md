@@ -55,8 +55,8 @@ Stato attuale dello sviluppo (ROADMAP):
 15. Impostazioni per Gruppi e Canali - ✔️ FATTO
 16. Versione multilingua — ⏳ DA FARE
 
-Aiutami a mantenere attivi i miei progetti!
-https://ko-fi.com/rootgpt
+Telegram: RooTest Apps Group
+Aiutami a mantenere attivi i miei progetti! https://ko-fi.com/rootgpt
 
 ---
 
@@ -117,5 +117,5 @@ Current development status (ROADMAP):
 15. Settings for Groups and Channels — ✔️ DONE
 16. Multilanguage version — ⏳ TO DO
 
-Your support helps keep my projects alive!
-https://ko-fi.com/rootgpt
+Telegram Group: RooTest Apps Group
+Your support helps keep my projects alive! https://ko-fi.com/rootgpt

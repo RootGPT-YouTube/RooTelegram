@@ -28,16 +28,26 @@ Image {
     readonly property alias file: file
     property bool highlighted
 
+    // Opt-in cap on the decode dimensions (px). 0 = no cap (keeps full quality
+    // for ImagePage/ZoomImage). Inline previews set this to bound texture size
+    // and avoid EGL/GPU pressure on long photo channels.
+    property real maxSourceDimension: 0
+
     asynchronous: true
+    cache: true
     enabled: !!file.fileId
     fillMode: Image.PreserveAspectCrop
     clip: true
     opacity: status === Image.Ready ? 1.0 : 0.0
     source: enabled && file.isDownloadingCompleted ? file.path : ""
     visible: opacity > 0
+
+    // sourceSize uses parent.width/height (not self.width/height) to avoid a
+    // self-referential binding that QML 5.6 reports up the parent chain as a
+    // "Binding loop on TDLibPhoto.width".
     sourceSize {
-        width: width
-        height: height
+        width: parent ? (maxSourceDimension > 0 ? Math.min(parent.width, maxSourceDimension) : parent.width) : 0
+        height: parent ? (maxSourceDimension > 0 ? Math.min(parent.height, maxSourceDimension) : parent.height) : 0
     }
 
     Behavior on opacity { FadeAnimation {} }

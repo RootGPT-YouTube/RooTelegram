@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -140,6 +145,7 @@ TDLibReceiver::TDLibReceiver(void *tdLibClient, QObject *parent) : QThread(paren
     handlers.insert("updateNewMessage", &TDLibReceiver::processUpdateNewMessage);
     handlers.insert("message", &TDLibReceiver::processMessage);
     handlers.insert("messageLinkInfo", &TDLibReceiver::processMessageLinkInfo);
+    handlers.insert("httpUrl", &TDLibReceiver::processHttpUrl);
     handlers.insert("updateMessageSendSucceeded", &TDLibReceiver::processMessageSendSucceeded);
     handlers.insert("updateActiveNotifications", &TDLibReceiver::processUpdateActiveNotifications);
     handlers.insert("updateNotificationGroup", &TDLibReceiver::processUpdateNotificationGroup);
@@ -154,6 +160,7 @@ TDLibReceiver::TDLibReceiver(void *tdLibClient, QObject *parent) : QThread(paren
     handlers.insert("stickerSets", &TDLibReceiver::processStickerSets);
     handlers.insert("stickerSet", &TDLibReceiver::processStickerSet);
     handlers.insert("chatMembers", &TDLibReceiver::processChatMembers);
+    handlers.insert("chatEvents", &TDLibReceiver::processChatEvents);
     handlers.insert("chatJoinRequests", &TDLibReceiver::processChatJoinRequests);
     handlers.insert("updateChatPendingJoinRequests", &TDLibReceiver::processUpdateChatPendingJoinRequests);
     handlers.insert("updateNewChatJoinRequest", &TDLibReceiver::processUpdateNewChatJoinRequest);
@@ -192,12 +199,15 @@ TDLibReceiver::TDLibReceiver(void *tdLibClient, QObject *parent) : QThread(paren
     handlers.insert("updateActiveEmojiReactions", &TDLibReceiver::processUpdateActiveEmojiReactions);
     handlers.insert("forumTopics", &TDLibReceiver::processForumTopics);
     handlers.insert("forumTopic", &TDLibReceiver::processForumTopic);
+    // createForumTopic restituisce forumTopicInfo (non ok) — serve un handler dedicato
+    handlers.insert("forumTopicInfo", &TDLibReceiver::processForumTopicInfoCreated);
     handlers.insert("updateForumTopicInfo", &TDLibReceiver::processUpdateForumTopicInfo);
     handlers.insert("updateForumTopic",     &TDLibReceiver::processUpdateForumTopicUpdate);
     handlers.insert("updateChatFolders", &TDLibReceiver::processUpdateChatFolders);
     handlers.insert("chatFolders", &TDLibReceiver::processUpdateChatFolders);
     handlers.insert("chatFolderInfo", &TDLibReceiver::processChatFolderInfo);
     handlers.insert("chatFolder", &TDLibReceiver::processChatFolderInfo);
+    handlers.insert("updateChatThemes", &TDLibReceiver::processUpdateChatThemes);
 }
 
 void TDLibReceiver::setActive(bool active)
@@ -519,6 +529,17 @@ void TDLibReceiver::processMessageLinkInfo(const QVariantMap &receivedInformatio
     emit messageLinkInfoReceived(url, receivedInformation, extra);
 }
 
+void TDLibReceiver::processHttpUrl(const QVariantMap &receivedInformation)
+{
+    const QString extra = receivedInformation.value(_EXTRA).toString();
+    const QString url = receivedInformation.value("url").toString();
+    LOG("Received httpUrl" << extra);
+    if (extra.startsWith("getChatStatisticsUrl:")) {
+        const qlonglong chatId = extra.mid(QStringLiteral("getChatStatisticsUrl:").length()).toLongLong();
+        emit chatStatisticsUrlReceived(chatId, url);
+    }
+}
+
 void TDLibReceiver::processMessageSendSucceeded(const QVariantMap &receivedInformation)
 {
     const qlonglong oldMessageId = receivedInformation.value(OLD_MESSAGE_ID).toLongLong();
@@ -629,6 +650,14 @@ void TDLibReceiver::processChatMembers(const QVariantMap &receivedInformation)
     LOG("Received super group members");
     const QString extra = receivedInformation.value(_EXTRA).toString();
     emit chatMembers(extra, receivedInformation.value("members").toList(), receivedInformation.value(TOTAL_COUNT).toInt());
+}
+
+void TDLibReceiver::processChatEvents(const QVariantMap &receivedInformation)
+{
+    const qlonglong chatId = receivedInformation.value(_EXTRA).toLongLong();
+    const QVariantList events = cleanupList(receivedInformation.value("events").toList());
+    LOG("Received chat events for chat" << chatId << "count:" << events.count());
+    emit chatEventLogReceived(chatId, events);
 }
 
 void TDLibReceiver::processChatJoinRequests(const QVariantMap &receivedInformation)
@@ -1042,7 +1071,10 @@ void TDLibReceiver::processForumTopics(const QVariantMap &receivedInformation)
     const QVariantList topics = receivedInformation.value("topics").toList();
     const qlonglong nextOffsetDate            = receivedInformation.value("next_offset_date").toLongLong();
     const qlonglong nextOffsetMessageId       = receivedInformation.value("next_offset_message_id").toLongLong();
-    const qlonglong nextOffsetMessageThreadId = receivedInformation.value("next_offset_message_thread_id").toLongLong();
+    qlonglong nextOffsetMessageThreadId = receivedInformation.value("next_offset_forum_topic_id").toLongLong();
+    if (nextOffsetMessageThreadId == 0) {
+        nextOffsetMessageThreadId = receivedInformation.value("next_offset_message_thread_id").toLongLong();
+    }
     LOG("Forum topics received, count:" << totalCount);
     emit forumTopicsReceived(0, topics, totalCount, nextOffsetDate, nextOffsetMessageId, nextOffsetMessageThreadId);
 }
@@ -1062,6 +1094,26 @@ void TDLibReceiver::processForumTopic(const QVariantMap &receivedInformation)
     emit forumTopicReceived(chatId, topic);
 }
 
+void TDLibReceiver::processForumTopicInfoCreated(const QVariantMap &receivedInformation)
+{
+    // createForumTopic restituisce forumTopicInfo invece di ok.
+    // Emettiamo okReceived con l'@extra originale così il QML può
+    // chiudere l'editor e aggiornare la lista topic.
+    const QString extra = receivedInformation.value(_EXTRA).toString();
+    LOG("Forum topic created (forumTopicInfo response), extra:" << extra);
+    emit okReceived(extra);
+    // Emettiamo anche forumTopicInfoUpdated per aggiornare il modello
+    const QString topicExtra = extra;
+    qlonglong chatId = 0;
+    if (topicExtra.startsWith("forumTopics:create:")) {
+        const QStringList parts = topicExtra.split(":");
+        if (parts.size() >= 3) chatId = parts.at(2).toLongLong();
+    }
+    if (chatId != 0) {
+        emit forumTopicInfoUpdated(chatId, receivedInformation);
+    }
+}
+
 void TDLibReceiver::processUpdateForumTopicInfo(const QVariantMap &receivedInformation)
 {
     const qlonglong chatId = receivedInformation.value(CHAT_ID).toLongLong();
@@ -1079,7 +1131,10 @@ void TDLibReceiver::processUpdateForumTopicUpdate(const QVariantMap &receivedInf
     // (es. dopo viewMessages con message_thread_id). Contiene last_read_inbox_message_id
     // che Yottagram usa per calcolare isRead. Noi lo usiamo per azzerare unread_count.
     const qlonglong chatId           = receivedInformation.value(CHAT_ID).toLongLong();
-    const qlonglong threadId         = receivedInformation.value("message_thread_id").toLongLong();
+    qlonglong threadId = receivedInformation.value("message_thread_id").toLongLong();
+    if (threadId == 0) {
+        threadId = receivedInformation.value("forum_topic_id").toLongLong();
+    }
     const qlonglong lastReadInbox    = receivedInformation.value("last_read_inbox_message_id").toLongLong();
     const qlonglong lastReadOutbox   = receivedInformation.value("last_read_outbox_message_id").toLongLong();
     const int unreadMentions         = receivedInformation.value("unread_mention_count").toInt();
@@ -1104,4 +1159,11 @@ void TDLibReceiver::processChatFolderInfo(const QVariantMap &receivedInformation
     LOG("Chat folder response received, type:" << receivedInformation.value(_TYPE).toString()
         << "id:" << receivedInformation.value(ID).toInt());
     emit chatFolderInfoReceived(receivedInformation);
+}
+
+void TDLibReceiver::processUpdateChatThemes(const QVariantMap &receivedInformation)
+{
+    const QVariantList themes = receivedInformation.value("chat_themes").toList();
+    LOG("Chat themes updated, count:" << themes.size());
+    emit chatThemesUpdated(themes);
 }

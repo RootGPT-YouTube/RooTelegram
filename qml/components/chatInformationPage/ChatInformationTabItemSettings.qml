@@ -1,7 +1,12 @@
 /*
     Copyright (C) 2020 Sebastian J. Wolf and other contributors
+    Forked in 2026 by RootGPT
 
-    This file is part of RooTelegram.
+    This file is part of RooTelegram, a fork of the Fernschreiber project
+    (https://github.com/Wunderfitz/harbour-fernschreiber), which is
+    licensed under the GNU General Public License v3.0. The original
+    license is available at:
+    https://github.com/Wunderfitz/harbour-fernschreiber/blob/master/LICENSE
 
     RooTelegram is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,6 +34,26 @@ ChatInformationTabItemBase {
     id: tabBase
 //    title: qsTr("Settings", "Button: Chat Settings")
 //    image: "image://theme/icon-m-developer-mode"
+    readonly property var groupStatus: chatInformationPage.groupInformation && chatInformationPage.groupInformation.status ? chatInformationPage.groupInformation.status : ({})
+    function statusFlag(flagName) {
+        if (!flagName) {
+            return false;
+        }
+        if (typeof groupStatus[flagName] === "boolean") {
+            return groupStatus[flagName];
+        }
+        var rights = groupStatus.rights || {};
+        if (typeof rights[flagName] === "boolean") {
+            return rights[flagName];
+        }
+        var permissions = groupStatus.permissions || {};
+        if (typeof permissions[flagName] === "boolean") {
+            return permissions[flagName];
+        }
+        return false;
+    }
+    readonly property bool canRestrictMembers: statusFlag("can_restrict_members") || groupStatus["@type"] === "chatMemberStatusCreator"
+    readonly property bool canChangeInfo: statusFlag("can_change_info") || groupStatus["@type"] === "chatMemberStatusCreator"
 
     SilicaFlickable {
         height: tabBase.height
@@ -52,14 +77,14 @@ ChatInformationTabItemBase {
             // - canTransferOwnership?
             //   - transferChatOwnership
             Loader {
-                active: (chatInformationPage.isBasicGroup || chatInformationPage.isSuperGroup) && chatInformationPage.groupInformation &&  (chatInformationPage.groupInformation.status.can_restrict_members || chatInformationPage.groupInformation.status.can_change_info || chatInformationPage.groupInformation.status["@type"] === "chatMemberStatusCreator")
+                active: (chatInformationPage.isBasicGroup || chatInformationPage.isSuperGroup) && (tabBase.canRestrictMembers || tabBase.canChangeInfo)
                 asynchronous: true
                 source: "./EditGroupChatPermissionsColumn.qml"
                 width: parent.width
             }
 
             Loader {
-                active: chatInformationPage.isSuperGroup && chatInformationPage.groupInformation &&  chatInformationPage.groupInformation.status.can_restrict_members || chatInformationPage.groupInformation.status["@type"] === "chatMemberStatusCreator"
+                active: chatInformationPage.isSuperGroup && tabBase.canRestrictMembers
                 asynchronous: true
                 source: "./EditSuperGroupSlowModeColumn.qml"
                 width: parent.width
