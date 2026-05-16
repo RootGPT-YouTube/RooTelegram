@@ -53,6 +53,7 @@ Stato attuale dello sviluppo (ROADMAP):
 13. Migliorare preview immagini (portrait e landscape), migliorare formattazione messaggi (wordwrap e mono) e preview link — ✔️ FATTO
 14. Bio utente e tabulazione (Media, Audio, Documenti, Link, Gruppi) — ✔️ FATTO
 15. Impostazioni per Gruppi e Canali - ✔️ FATTO
+16. Versione multilingua — ⏳ DA FARE
 
 ---
 
@@ -111,3 +112,4 @@ Current development status (ROADMAP):
 13. Improve image previews (portrait and landscape), improve message formatting (word wrap and mono) and link previews — ✔️ DONE
 14. User bio and tabs (Media, Audio, Documents, Links, Groups) — ✔️ DONE
 15. Settings for Groups and Channels — ✔️ DONE
+16. Multilanguage version — ⏳ TO DO
